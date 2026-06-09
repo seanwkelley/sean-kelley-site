@@ -90,7 +90,7 @@ export const building = [
     title: "Share",
     status: "Deployed",
     blurb:
-      "Closes the most dangerous gap in university counseling: the wait for care. Share does two things. During the waiting period it continuously monitors each student's mental health and surfaces those who are deteriorating to the clinic manager — so the students getting worse are seen sooner, instead of being triaged by who booked first. Then, at the first session, it gives the therapist a clinician-facing summary of that student. Co-designed with counseling-center clinicians and administrators; in production with university counseling services, where it cut initial session time 15–20% and lowered total sessions per student.",
+      "Monitors each student's mental health during the wait for care and flags those who are deteriorating to the clinic manager — so students getting worse are seen sooner, not triaged by who booked first. It also gives the therapist a pre-session summary. In production with university counseling services; 15–20% shorter initial sessions and fewer total sessions per student.",
     tags: ["waitlist monitoring", "deterioration detection", "clinician-in-the-loop", "university counseling"],
     href: "",
   },
