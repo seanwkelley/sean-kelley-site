@@ -21,7 +21,7 @@ export const profile = {
   phone: "+1 310 567 6740", // TODO: remove if you'd rather not list it publicly
   links: {
     scholar: "https://scholar.google.com/citations?user=ETfHI60AAAAJ&hl=en", // Google Scholar
-    github: "", // TODO: GitHub URL
+    github: "https://github.com/seanwkelley", // GitHub profile
     linkedin: "https://www.linkedin.com/in/sean-w-kelley/", // LinkedIn
     arxiv: "", // set to your arXiv author page URL to show the button
     myndgard: "https://myndgard.com", // company site (distinct from the Discover product)
