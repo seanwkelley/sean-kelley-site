@@ -202,20 +202,25 @@ a {
 .status {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--fg-mute);
-  border: 1px solid var(--hair);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg);
+  border: 1px solid color-mix(in srgb, var(--signal) 42%, var(--hair));
   border-radius: 999px;
-  padding: 6px 13px 6px 11px;
-  background: var(--bg-raised);
+  padding: 8px 16px 8px 13px;
+  background: color-mix(in srgb, var(--signal) 10%, var(--bg-raised));
 }
 .status .live {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--signal);
+  box-shadow: 0 0 8px 0 var(--signal);
+  animation: pulse 2.6s ease-out infinite;
 }
 .hero h1 {
   font-family: var(--font-display);
