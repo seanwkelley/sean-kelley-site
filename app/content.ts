@@ -81,7 +81,7 @@ export const building = [
     title: "Discover",
     status: "Deployed",
     blurb:
-      "A 12-day, 38-module psychoeducation product driven by an AI content pipeline with persona-based diversity sampling and automated quality checks. 90% of deployed students showed measurable mental-health improvement.",
+      "A 12-day, 38-module psychoeducation product driven by an AI content pipeline with persona-based diversity sampling and automated quality checks. 90% of students showed measurable mental-health improvement.",
     tags: ["AI content pipeline", "psychoeducation"],
     href: "https://myndgard-discover.com",
   },

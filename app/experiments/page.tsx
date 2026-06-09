@@ -3,7 +3,7 @@ import Reveal from "@/components/Reveal";
 import { profile, labIntro, experiments } from "../content";
 
 export const metadata: Metadata = {
-  title: `Lab — ${profile.name}`,
+  title: `Experiments — ${profile.name}`,
   description: labIntro,
 };
 
@@ -13,7 +13,7 @@ const ArrowUpRight = () => (
   </svg>
 );
 
-export default function Lab() {
+export default function Experiments() {
   return (
     <>
       <nav className="nav">
@@ -26,7 +26,7 @@ export default function Lab() {
             <a href="/#about">about</a>
             <a href="/#research">research</a>
             <a href="/#building">building</a>
-            <a href="/lab">lab</a>
+            <a href="/experiments">experiments</a>
             <a href="/#contact">contact</a>
           </div>
         </div>
@@ -38,7 +38,7 @@ export default function Lab() {
             ← back to home
           </a>
           <span className="eyebrow" style={{ marginTop: 22 }}>
-            <span className="bar" /> lab · experiments
+            <span className="bar" /> experiments
           </span>
           <h1 style={{ fontSize: "clamp(40px,7vw,78px)", marginTop: 18 }}>
             Things I built
