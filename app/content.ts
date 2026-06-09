@@ -43,7 +43,7 @@ export const research = [
     blurb:
       "A benchmark measuring how nine frontier LLMs trade a user's actual goals against sycophantic agreement — turning a core alignment worry into a single comparable cross-model metric.",
     tags: ["LLM eval", "sycophancy", "9 models"],
-    href: "https://github.com/seanwkelley/GoalPref-Bench",
+    links: [{ label: "GitHub", href: "https://github.com/seanwkelley/GoalPref-Bench" }],
   },
   {
     id: "causal-coherence",
@@ -52,7 +52,10 @@ export const research = [
     blurb:
       "Elicits structured causal models from LLMs, computes the graph-theoretic importance of each factor, then generates targeted challenges to test whether belief updates track structural significance. Run across seven models and hundreds of forecasting questions with test–retest reliability and placebo controls.",
     tags: ["causal reasoning", "DAGs", "7 models"],
-    href: "https://github.com/seanwkelley/LLM_Forecasting",
+    links: [
+      { label: "Code & paper", href: "https://github.com/seanwkelley/LLM_Forecasting" },
+      { label: "Interactive demo", href: "https://github.com/seanwkelley/causal-forecast-lab" },
+    ],
   },
   {
     id: "epistemic-independence",
@@ -61,7 +64,7 @@ export const research = [
     blurb:
       "Experiments on how personalization reshapes a model's epistemic independence and affective alignment — finding that personalization increases affective alignment but has role-dependent effects on sycophancy.",
     tags: ["personalization", "alignment", "arXiv 2026"],
-    href: "https://arxiv.org/abs/2603.00024", // TODO: confirm
+    links: [{ label: "Read paper", href: "https://arxiv.org/abs/2603.00024" }], // TODO: confirm
   },
   {
     id: "creative-collaboration",
@@ -70,7 +73,7 @@ export const research = [
     blurb:
       "A study with hundreds of participants showing that personalized AI scaffolds synergistic, multi-turn human–AI collaboration in creative tasks. Owned end to end, from research question through analysis and writeup.",
     tags: ["synergy", "creativity", "arXiv 2025"],
-    href: "https://arxiv.org/abs/2510.27681", // TODO: confirm
+    links: [{ label: "Read paper", href: "https://arxiv.org/abs/2510.27681" }], // TODO: confirm
   },
 ];
 
@@ -199,7 +202,7 @@ export const grants = [
   { name: "Enterprise Ireland Proof of Concept", detail: "$143K · PI" },
   { name: "Schmidt Sciences — AI at Work", detail: "$10K · PI" },
   { name: "Trinity College Dublin Provost's PhD Award", detail: "$132K" },
-  { name: "NeuroCure Cluster of Excellence Scholarship", detail: "$14K · Medical Neurosciences" },
+  { name: "NeuroCure Cluster of Excellence Scholarship", detail: "$14K" },
   { name: "EIT Health Wild Card", detail: "1 of 8 EU startups" },
   { name: "Dogpatch Labs Founders Programme", detail: "Resident" },
 ];

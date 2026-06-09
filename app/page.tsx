@@ -137,13 +137,20 @@ export default function Home() {
                     </span>
                   ))}
                 </div>
-                {r.href && (
-                  <>
-                    <span className="extlink">
-                      read more <ArrowUpRight />
-                    </span>
-                    <a className="card-link" href={r.href} target="_blank" rel="noreferrer" aria-label={r.title} />
-                  </>
+                {r.links && r.links.length > 0 && (
+                  <div className="card-links">
+                    {r.links.map((l) => (
+                      <a
+                        key={l.href}
+                        className="card-linkchip"
+                        href={l.href}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {l.label} <ArrowUpRight />
+                      </a>
+                    ))}
+                  </div>
                 )}
               </Reveal>
             ))}

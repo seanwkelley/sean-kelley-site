@@ -510,6 +510,39 @@ section {
   gap: 6px;
   align-items: center;
 }
+.card-links {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+.card-linkchip {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: var(--fg-soft);
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  padding: 6px 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  transition: border-color 0.2s, color 0.2s, transform 0.2s;
+}
+.card-linkchip:hover {
+  color: var(--signal);
+  border-color: color-mix(in srgb, var(--signal) 45%, var(--hair));
+  transform: translateY(-2px);
+}
+.card-linkchip .arrow {
+  transition: transform 0.2s ease;
+}
+.card-linkchip:hover .arrow {
+  transform: translate(2px, -2px);
+}
 @media (max-width: 700px) {
   .cards {
     grid-template-columns: 1fr;
