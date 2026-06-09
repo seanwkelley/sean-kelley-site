@@ -52,7 +52,7 @@ export const research = [
     blurb:
       "Elicits structured causal models from LLMs, computes the graph-theoretic importance of each factor, then generates targeted challenges to test whether belief updates track structural significance. Run across seven models and hundreds of forecasting questions with test–retest reliability and placebo controls.",
     tags: ["causal reasoning", "DAGs", "7 models"],
-    href: "https://github.com/seanwkelley/causal-forecast-lab",
+    href: "https://github.com/seanwkelley/LLM_Forecasting",
   },
   {
     id: "epistemic-independence",
