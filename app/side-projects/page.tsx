@@ -41,9 +41,9 @@ export default function SideProjects() {
             <span className="bar" /> side projects
           </span>
           <h1 style={{ fontSize: "clamp(40px,7vw,78px)", marginTop: 18 }}>
-            Things I built
+            Side
             <br />
-            <span className="ln2">to answer a question.</span>
+            <span className="ln2">projects.</span>
           </h1>
           <p className="hero-sub">{labIntro}</p>
         </header>
