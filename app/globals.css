@@ -380,6 +380,22 @@ section {
   font-size: 14px;
   margin-top: 2px;
 }
+.inline-link {
+  color: var(--fg-soft);
+  border-bottom: 1px solid var(--signal-dim);
+  transition: color 0.2s, border-color 0.2s;
+}
+.inline-link:hover {
+  color: var(--signal);
+  border-color: var(--signal);
+}
+.foot-link {
+  color: var(--fg-mute);
+  transition: color 0.2s;
+}
+.foot-link:hover {
+  color: var(--signal);
+}
 @media (max-width: 760px) {
   .about-grid {
     grid-template-columns: 1fr;

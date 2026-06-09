@@ -24,6 +24,7 @@ export const profile = {
     github: "", // TODO: GitHub URL
     linkedin: "https://www.linkedin.com/in/sean-w-kelley/", // LinkedIn
     arxiv: "", // set to your arXiv author page URL to show the button
+    myndgard: "https://myndgard.com", // company site (distinct from the Discover product)
   },
 };
 

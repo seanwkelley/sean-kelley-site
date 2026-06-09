@@ -91,7 +91,11 @@ export default function Home() {
                 <span className="k">Founder</span>
                 <span className="v">
                   Co-founder & Technical Lead
-                  <small>Myndgard</small>
+                  <small>
+                    <a className="inline-link" href={profile.links.myndgard} target="_blank" rel="noreferrer">
+                      Myndgard ↗
+                    </a>
+                  </small>
                 </span>
               </div>
               <div className="row">
@@ -318,6 +322,9 @@ export default function Home() {
 
         <footer className="footer">
           <span>© {profile.name} · {new Date().getFullYear()}</span>
+          <a className="foot-link" href={profile.links.myndgard} target="_blank" rel="noreferrer">
+            Myndgard ↗
+          </a>
         </footer>
       </main>
     </>
