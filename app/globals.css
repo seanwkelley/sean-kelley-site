@@ -18,9 +18,9 @@
   --fg-faint: #494d56;
 
   /* Signal — used sparingly */
-  --signal: #2dd4bf;
-  --signal-dim: #47a99a;
-  --signal-glow: rgba(45, 212, 191, 0.18);
+  --signal: #14b8a6;
+  --signal-dim: #3f9488;
+  --signal-glow: rgba(20, 184, 166, 0.18);
 
   --font-display: var(--font-display), Georgia, serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
