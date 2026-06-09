@@ -66,10 +66,10 @@ export const research = [
   {
     id: "creative-collaboration",
     title: "Personalized AI for Creative Work",
-    kind: "Large-N study",
+    kind: "Human–AI collaboration",
     blurb:
       "A study with hundreds of participants showing that personalized AI scaffolds synergistic, multi-turn human–AI collaboration in creative tasks. Owned end to end, from research question through analysis and writeup.",
-    tags: ["human–AI", "creativity", "arXiv 2025"],
+    tags: ["synergy", "creativity", "arXiv 2025"],
     href: "https://arxiv.org/abs/2510.27681", // TODO: confirm
   },
 ];
