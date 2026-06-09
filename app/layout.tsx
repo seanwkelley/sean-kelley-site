@@ -25,11 +25,15 @@ const body = Hanken_Grotesk({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://swkelley.com"),
   title: `${profile.name} — ${profile.tag}`,
   description: profile.subhead,
+  alternates: { canonical: "/" },
   openGraph: {
     title: `${profile.name} — ${profile.tag}`,
     description: profile.subhead,
+    url: "https://swkelley.com",
+    siteName: profile.name,
     type: "website",
   },
 };
