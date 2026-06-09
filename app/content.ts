@@ -116,15 +116,6 @@ export const building = [
 
 export const publications = [
   {
-    authors: "Kelley, S., De Cremer, D., & Riedl, C.",
-    year: "2025",
-    title:
-      "Personalized AI Scaffolds Synergistic Multi-Turn Collaboration in Creative Work.",
-    venue: "arXiv:2510.27681",
-    note: "under review",
-    href: "https://arxiv.org/abs/2510.27681",
-  },
-  {
     authors: "Kelley, S. W., & Riedl, C.",
     year: "2026",
     title:
@@ -132,6 +123,15 @@ export const publications = [
     venue: "arXiv:2603.00024",
     note: "under review",
     href: "https://arxiv.org/abs/2603.00024",
+  },
+  {
+    authors: "Kelley, S., De Cremer, D., & Riedl, C.",
+    year: "2025",
+    title:
+      "Personalized AI Scaffolds Synergistic Multi-Turn Collaboration in Creative Work.",
+    venue: "arXiv:2510.27681",
+    note: "under review",
+    href: "https://arxiv.org/abs/2510.27681",
   },
   {
     authors: "Kelley, S. W., et al.",

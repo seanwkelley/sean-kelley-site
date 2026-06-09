@@ -538,14 +538,16 @@ section {
   color: var(--signal-dim);
 }
 .pub .title {
+  display: block;
   font-size: 16.5px;
-  line-height: 1.5;
+  line-height: 1.45;
   color: var(--fg);
 }
 .pub .authors {
+  display: block;
   color: var(--fg-mute);
   font-size: 14px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 .pub .venue {
   font-family: var(--font-mono);
