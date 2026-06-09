@@ -13,10 +13,10 @@ export const profile = {
   status: "Open to research & data science roles", // TODO: edit or set to "" to hide
   // The big headline. Keep it one strong sentence.
   headline:
-    "I build rigorous evaluations for how AI systems behave — and the tools that put that science into practice.",
+    "I measure how AI systems behave, and build tools that act on what I find.",
   // One supporting paragraph under the headline.
   subhead:
-    "Postdoctoral researcher at Northeastern's Network Science Institute and co-founder of Myndgard. I turn fuzzy concerns about model behavior — sycophancy, epistemic independence, causal coherence — into measurable benchmarks, and ship AI tools for mental health that clinicians actually use.",
+    "Postdoctoral researcher at Northeastern's Network Science Institute and co-founder of Myndgard. My research measures how language models behave — things like sycophancy, epistemic independence, and causal reasoning. At Myndgard, I build mental-health tools that clinicians use in their work.",
   email: "seanwk21@gmail.com",
   phone: "+1 310 567 6740", // TODO: remove if you'd rather not list it publicly
   links: {
@@ -29,9 +29,9 @@ export const profile = {
 };
 
 export const about = [
-  "I'm an interdisciplinary researcher working at the seam between AI evaluation and human behavior. My PhD is in psychology with a computational-psychiatry focus — building machine-learning and network models of mental health from real longitudinal data, with first-author work in Nature Communications, PNAS, and NPJ Digital Medicine.",
-  "Today I design evaluation harnesses that operationalize nebulous claims about LLM behavior into comparable, reproducible metrics across frontier models. Alongside that, I co-founded Myndgard, where the same rigor goes into shipping AI safety and psychoeducation tools deployed with university counseling services.",
-  "The throughline: take something everyone worries about but no one measures, make it measurable, then build the thing that acts on the measurement.",
+  "I work across AI evaluation and human behavior. My PhD is in psychology, focused on computational psychiatry — building machine-learning and network models of mental health from real longitudinal data. That work led to first-author papers in Nature Communications, PNAS, and NPJ Digital Medicine.",
+  "Now I build evaluations that turn vague claims about how language models behave into numbers you can compare across models. I also co-founded Myndgard, where I build AI safety and mental-health tools that universities use with their counseling services.",
+  "Most of what I do follows one pattern: take something people worry about but can't measure, make it measurable, then build something that acts on it.",
 ];
 
 // ── Research — the evaluation / academic work ────────────────────────────────
@@ -41,7 +41,7 @@ export const research = [
     title: "GoalPref-Bench",
     kind: "Evaluation harness",
     blurb:
-      "A benchmark measuring how nine frontier LLMs trade a user's actual goals against sycophantic agreement — turning a core alignment worry into a single comparable cross-model metric.",
+      "A benchmark that tests whether nine language models stick to what a user actually wants or just agree with them. It turns a common worry about sycophancy into one number you can compare across models.",
     tags: ["LLM eval", "sycophancy", "9 models"],
     links: [{ label: "GitHub", href: "https://github.com/seanwkelley/GoalPref-Bench" }],
   },
@@ -50,7 +50,7 @@ export const research = [
     title: "Causal-Coherence Probing",
     kind: "Framework + study",
     blurb:
-      "Elicits structured causal models from LLMs, computes the graph-theoretic importance of each factor, then generates targeted challenges to test whether belief updates track structural significance. Run across seven models and hundreds of forecasting questions with test–retest reliability and placebo controls.",
+      "Asks a model to forecast something and explain its reasoning as a causal diagram. It then works out which factors matter most and challenges them one at a time: does the model change its mind more when you push on an important factor than a minor one? Run across seven models and hundreds of questions, with reliability and placebo checks.",
     tags: ["causal reasoning", "DAGs", "7 models"],
     links: [
       { label: "Code & paper", href: "https://github.com/seanwkelley/LLM_Forecasting" },
@@ -62,7 +62,7 @@ export const research = [
     title: "Personalization & Epistemic Independence",
     kind: "Controlled experiments",
     blurb:
-      "Experiments on how personalization reshapes a model's epistemic independence and affective alignment — finding that personalization increases affective alignment but has role-dependent effects on sycophancy.",
+      "Experiments on what happens when you personalize a model to a user. Personalizing makes it warmer and more emotionally in tune, but whether it also makes the model more agreeable depends on the role it's playing.",
     tags: ["personalization", "alignment", "arXiv 2026"],
     links: [{ label: "Read paper", href: "https://arxiv.org/abs/2603.00024" }], // TODO: confirm
   },
@@ -71,7 +71,7 @@ export const research = [
     title: "Personalized AI for Creative Work",
     kind: "Human–AI collaboration",
     blurb:
-      "A study with hundreds of participants showing that personalized AI scaffolds synergistic, multi-turn human–AI collaboration in creative tasks. Owned end to end, from research question through analysis and writeup.",
+      "A study with hundreds of people testing whether a personalized AI helps with creative work. It did: people and the AI built on each other's ideas across a back-and-forth, instead of the AI just doing the work. I ran it end to end, from the question to the analysis.",
     tags: ["synergy", "creativity", "arXiv 2025"],
     links: [{ label: "Read paper", href: "https://arxiv.org/abs/2510.27681" }], // TODO: confirm
   },
@@ -84,7 +84,7 @@ export const building = [
     title: "Discover",
     status: "Deployed",
     blurb:
-      "A 12-day, 38-module psychoeducation product driven by an AI content pipeline with persona-based diversity sampling and automated quality checks. 90% of students showed measurable mental-health improvement.",
+      "A 12-day, 38-module mental-health course. An AI pipeline writes the content for a range of student backgrounds and checks its own quality. 90% of students improved on mental-health measures.",
     tags: ["AI content pipeline", "psychoeducation"],
     href: "https://myndgard-discover.com",
   },
@@ -102,7 +102,7 @@ export const building = [
     title: "Guardian",
     status: "In development",
     blurb:
-      "An on-device AI safety agent that monitors adolescent conversations with AI companions for emerging harm, designed to run privately on the device rather than in the cloud.",
+      "Watches a teenager's conversations with AI companions for signs of harm, and runs on the device itself so the conversations never leave it.",
     tags: ["on-device", "AI safety", "adolescents"],
     href: "",
   },
@@ -111,7 +111,7 @@ export const building = [
     title: "Discover Family",
     status: "In development",
     blurb:
-      "A 10-module web curriculum that teaches adolescents (13+) to recognize specific risk patterns in AI-companion conversations — sycophancy, parasocial attachment, persona dynamics, isolation, and crisis-response failures — with scripted scenarios, an LLM reflection coach, and opt-in adaptive practice sandboxes.",
+      "A 10-module course that teaches teens (13+) to spot the ways AI companions can go wrong — flattery, growing attachment, blurred personas, being pulled away from real relationships, and bad responses in a crisis. Each module has scenarios to work through and an AI coach to talk them over with.",
     tags: ["AI companion safety", "adolescents", "PWA"],
     href: "", // TODO: live URL once it's public (Render service is up; subdomain TBD)
   },
@@ -222,13 +222,13 @@ export const experiments = [
     status: "Write-up live",
     // The setup / what I built.
     method:
-      "I built a synthetic-patient harness: a GPT-4o model role-plays a patient with a presenting complaint plus 4–5 hidden symptom domains it will only reveal if asked specifically (a strict disclosure rule). Five LLM “clinicians” each run a 12-turn intake on the same minimal “you are a clinician” prompt. 540 cells (18 phenotypes × 5 models × 6 profiles), dual-judged by Gemini 3 Flash and Claude Sonnet 4.6, scoring how many hidden domains each interview actually surfaces.",
+      "I set up a fake patient — a GPT-4o model that role-plays someone with a main complaint plus 4–5 hidden symptoms it will only mention if asked about them directly. Five different models then each play the clinician, running a 12-turn intake from the same plain “you are a clinician” prompt. That's 540 interviews in all (18 patient types × 5 models × 6 patients each), and two other models (Gemini 3 Flash and Claude Sonnet 4.6) score how many of the hidden symptoms each interview got the patient to reveal.",
     // The finding.
     finding:
-      "Reasoning is the variable that matters — not model size, and not the prompt. Standard chat models surfaced only 14–18% of hidden symptoms; a small reasoning model reached 27%, and a large one (Kimi K2.6) reached 56% — roughly 3× the next best — spontaneously asking symptom-specific questions across nearly all domains without being told to. The gains concentrated exactly where it counts clinically: masked presentations like bipolar, postpartum, and somatic cases, where chat models scored near zero.",
+      "What mattered was whether the model could reason — not its size, and not the prompt. Regular chat models found only 14–18% of the hidden symptoms. A small reasoning model found 27%, and a large one (Kimi K2.6) found 56%, about three times the next best, asking specific follow-up questions on its own without being told to. It did best on exactly the cases that are hardest to catch in real life: masked presentations like bipolar, postpartum, and somatic ones, where the chat models found almost nothing.",
     // Limitations.
     caveat:
-      "Patients are simulated, so the absolute percentages aren't real-world forecasts; the supported claim is relative — reasoning models produce probing behavior the chat models simply don't.",
+      "The patients are simulated, so don't read too much into the exact percentages. The gap between the models is the real result: the reasoning ones ask questions the chat models don't.",
     stats: [
       { value: "14–18%", label: "standard chat models" },
       { value: "27%", label: "small reasoning (Qwen 3 8B)" },

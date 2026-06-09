@@ -238,8 +238,8 @@ export default function Home() {
                 <span className="bar" /> side projects
               </span>
               <p className="lab-teaser-line">
-                Mini-experiments — like measuring what an LLM intake agent can
-                surface that a patient never volunteers.
+                Side projects — like testing what an AI intake agent can pick up
+                that a patient never says out loud.
               </p>
             </div>
             <a className="btn primary" href="/side-projects">
@@ -295,9 +295,9 @@ export default function Home() {
               <span className="bar" /> let&apos;s talk
             </span>
             <h2 style={{ marginTop: 22 }}>
-              Building something that needs
+              Working on something
               <br />
-              rigor and a researcher?
+              I could help with?
             </h2>
             <a className="email-btn" href={`mailto:${profile.email}`}>
               {profile.email}
