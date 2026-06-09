@@ -52,7 +52,7 @@ export const research = [
     blurb:
       "Elicits structured causal models from LLMs, computes the graph-theoretic importance of each factor, then generates targeted challenges to test whether belief updates track structural significance. Run across seven models and hundreds of forecasting questions with test–retest reliability and placebo controls.",
     tags: ["causal reasoning", "DAGs", "7 models"],
-    href: "",
+    href: "https://github.com/seanwkelley/causal-forecast-lab",
   },
   {
     id: "epistemic-independence",
@@ -199,6 +199,7 @@ export const grants = [
   { name: "Enterprise Ireland Proof of Concept", detail: "$143K · PI" },
   { name: "Schmidt Sciences — AI at Work", detail: "$10K · PI" },
   { name: "Trinity College Dublin Provost's PhD Award", detail: "$132K" },
+  { name: "NeuroCure Cluster of Excellence Scholarship", detail: "$14K · Medical Neurosciences" },
   { name: "EIT Health Wild Card", detail: "1 of 8 EU startups" },
   { name: "Dogpatch Labs Founders Programme", detail: "Resident" },
 ];
