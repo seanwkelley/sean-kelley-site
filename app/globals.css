@@ -352,10 +352,10 @@ section {
 }
 .facts {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 15px;
 }
 .facts .row {
-  padding: 14px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--hair);
 }
 .facts .row:first-child {
@@ -363,20 +363,22 @@ section {
 }
 .facts .k {
   color: var(--fg-faint);
-  font-size: 11px;
+  font-size: 12.5px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   display: block;
-  margin-bottom: 7px;
+  margin-bottom: 8px;
 }
 .facts .v {
   color: var(--fg);
+  font-size: 16.5px;
   line-height: 1.5;
 }
 .facts .v small {
   color: var(--fg-mute);
   display: block;
-  font-size: 12px;
+  font-size: 14px;
+  margin-top: 2px;
 }
 @media (max-width: 760px) {
   .about-grid {
