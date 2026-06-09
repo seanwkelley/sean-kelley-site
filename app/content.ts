@@ -18,7 +18,6 @@ export const profile = {
   subhead:
     "Postdoctoral researcher at Northeastern's Network Science Institute and co-founder of Myndgard. My research measures how language models behave — things like sycophancy, epistemic independence, and causal reasoning. At Myndgard, I build mental-health tools that clinicians use in their work.",
   email: "seanwk21@gmail.com",
-  phone: "+1 310 567 6740", // TODO: remove if you'd rather not list it publicly
   links: {
     scholar: "https://scholar.google.com/citations?user=ETfHI60AAAAJ&hl=en", // Google Scholar
     github: "https://github.com/seanwkelley", // GitHub profile
