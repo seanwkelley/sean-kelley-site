@@ -89,8 +89,8 @@ export const building = [
     title: "Predictive Triage",
     status: "Deployed",
     blurb:
-      "Models student mental-health trajectories and generates clinician-facing summaries therapists review before first sessions — cutting initial session time 15–20% and lowering total sessions needed.",
-    tags: ["clinical ML", "decision support"],
+      "Built for a hard constraint in university counseling — a fixed pool of clinicians against fluctuating, unpredictable student demand. The system continuously models each student's mental-health trajectory and produces a clinician-facing summary the therapist reviews before the first session. Co-designed with counseling-center clinicians and administrators so non-technical staff trust the model's output in their workflow. In production with university counseling services; cut initial session time 15–20% and lowered the total sessions needed per student.",
+    tags: ["clinical ML", "clinician-in-the-loop", "university counseling", "decision support"],
     href: "",
   },
   {
