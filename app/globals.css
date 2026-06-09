@@ -18,9 +18,9 @@
   --fg-faint: #494d56;
 
   /* Signal — used sparingly */
-  --signal: #c6f24e;
-  --signal-dim: #8fae3a;
-  --signal-glow: rgba(198, 242, 78, 0.16);
+  --signal: #2dd4bf;
+  --signal-dim: #47a99a;
+  --signal-glow: rgba(45, 212, 191, 0.18);
 
   --font-display: var(--font-display), Georgia, serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
@@ -232,6 +232,15 @@ a {
 }
 .hero h1 .ln2 {
   color: var(--fg-mute);
+}
+/* Homepage subtitle: clearly secondary to the name. */
+.hero h1 .tagline {
+  display: block;
+  font-size: 0.5em;
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  margin-top: 0.42em;
 }
 .hero .cursor {
   display: inline-block;

@@ -47,8 +47,7 @@ export default function Home() {
           )}
           <h1>
             Sean W. Kelley<span className="cursor" />
-            <br />
-            <span className="ln2">{profile.tag}.</span>
+            <span className="ln2 tagline">{profile.tag}.</span>
           </h1>
           <p className="hero-headline">{profile.headline}</p>
           <p className="hero-sub">{profile.subhead}</p>
