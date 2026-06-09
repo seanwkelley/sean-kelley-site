@@ -7,7 +7,7 @@ export const profile = {
   name: "Sean W. Kelley",
   surnameInitial: "PhD",
   // The short eyebrow above your name, terminal-style.
-  tag: "AI evaluation · computational psychiatry",
+  tag: "Human–AI interaction · behavioral science · mental health",
   // Location shown by the status dot.
   location: "Boston, MA", // TODO: confirm city
   status: "Open to research & data science roles", // TODO: edit or set to "" to hide
