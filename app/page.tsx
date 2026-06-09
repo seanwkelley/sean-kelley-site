@@ -30,7 +30,7 @@ export default function Home() {
             <a href="#about">about</a>
             <a href="#research">research</a>
             <a href="#building">building</a>
-            <a href="/experiments">experiments</a>
+            <a href="/side-projects">side projects</a>
             <a href="#contact">contact</a>
           </div>
         </div>
@@ -223,20 +223,20 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Experiments teaser ────────────────────────────────────────────── */}
-        <section id="experiments-teaser">
+        {/* ── Side projects teaser ──────────────────────────────────────────── */}
+        <section id="side-projects-teaser">
           <Reveal className="lab-teaser">
             <div>
               <span className="eyebrow">
-                <span className="bar" /> experiments
+                <span className="bar" /> side projects
               </span>
               <p className="lab-teaser-line">
                 Mini-experiments — like measuring what an LLM intake agent can
                 surface that a patient never volunteers.
               </p>
             </div>
-            <a className="btn primary" href="/experiments">
-              See the experiments <ArrowUpRight />
+            <a className="btn primary" href="/side-projects">
+              See the side projects <ArrowUpRight />
             </a>
           </Reveal>
         </section>
