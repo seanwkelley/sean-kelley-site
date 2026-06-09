@@ -294,9 +294,9 @@ export default function Home() {
               <span className="bar" /> let&apos;s talk
             </span>
             <h2 style={{ marginTop: 22 }}>
-              Working on something
+              Want to work
               <br />
-              I could help with?
+              together?
             </h2>
             <a className="email-btn" href={`mailto:${profile.email}`}>
               {profile.email}
