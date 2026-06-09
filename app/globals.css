@@ -731,8 +731,19 @@ section {
   margin-top: 40px;
   align-items: start;
 }
+.qa {
+  background: var(--bg-raised);
+  border: 1px solid var(--hair);
+  border-radius: var(--radius);
+  padding: 22px 26px 24px;
+}
 .qa + .qa {
-  margin-top: 28px;
+  margin-top: 16px;
+}
+/* Highlight the key finding with a signal-tinted left edge. */
+.qa-key {
+  border-left: 2px solid var(--signal);
+  background: color-mix(in srgb, var(--signal) 5%, var(--bg-raised));
 }
 .qa h4 {
   font-family: var(--font-mono);
@@ -740,15 +751,15 @@ section {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--signal-dim);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .qa p {
   font-size: 16.5px;
   line-height: 1.66;
-  color: var(--fg-soft);
+  color: var(--fg);
 }
 .qa p.muted {
-  color: var(--fg-mute);
+  color: var(--fg-soft);
   font-size: 15px;
 }
 .exp-links {

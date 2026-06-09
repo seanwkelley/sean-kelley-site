@@ -64,7 +64,7 @@ export default function Lab() {
                   <h4>What I built</h4>
                   <p>{x.method}</p>
                 </div>
-                <div className="qa">
+                <div className="qa qa-key">
                   <h4>What I found</h4>
                   <p>{x.finding}</p>
                 </div>
