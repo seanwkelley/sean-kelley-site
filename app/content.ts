@@ -113,7 +113,7 @@ export const building = [
     blurb:
       "A 10-module course that teaches teens (13+) to spot the ways AI companions can go wrong — flattery, growing attachment, blurred personas, being pulled away from real relationships, and bad responses in a crisis. Each module has scenarios to work through and an AI coach to talk them over with.",
     tags: ["AI companion safety", "adolescents", "PWA"],
-    href: "", // TODO: live URL once it's public (Render service is up; subdomain TBD)
+    href: "https://myndgard-discover-family.onrender.com/",
   },
 ];
 
