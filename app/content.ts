@@ -199,6 +199,7 @@ export const education = [
 export const grants = [
   { name: "Enterprise Ireland Commercialisation Fund", detail: "$629K · PI" },
   { name: "Enterprise Ireland Proof of Concept", detail: "$143K · PI" },
+  { name: "Enterprise Ireland Feasibility Study", detail: "$16K · PI" },
   { name: "Schmidt Sciences — AI at Work", detail: "$10K · PI" },
   { name: "Trinity College Dublin Provost's PhD Award", detail: "$132K" },
   { name: "NeuroCure Cluster of Excellence Scholarship", detail: "$14K" },
