@@ -212,7 +212,7 @@ export const grants = [
 //  Full interactive writeups live as static pages under /public/experiments/.
 // ─────────────────────────────────────────────────────────────────────────────
 export const labIntro =
-  "Short experiments I run to probe a question end to end — build the harness, measure something, see what falls out. Exploratory by design; some are dead ends, the interesting ones are written up below.";
+  "Side projects I build to answer questions I'm curious about. Usually quick: make something, run it, see if the idea holds up. Most go nowhere. The ones that found something interesting are below.";
 
 export const experiments = [
   {
