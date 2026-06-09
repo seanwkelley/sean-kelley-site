@@ -43,7 +43,7 @@ export const research = [
     blurb:
       "A benchmark measuring how nine frontier LLMs trade a user's actual goals against sycophantic agreement — turning a core alignment worry into a single comparable cross-model metric.",
     tags: ["LLM eval", "sycophancy", "9 models"],
-    href: "", // TODO: paper / repo link
+    href: "https://github.com/seanwkelley/GoalPref-Bench",
   },
   {
     id: "causal-coherence",
