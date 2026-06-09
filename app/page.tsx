@@ -60,7 +60,7 @@ export default function Home() {
             </a>
             {profile.links.scholar && (
               <a className="btn" href={profile.links.scholar} target="_blank" rel="noreferrer">
-                Scholar <ArrowUpRight />
+                Google Scholar <ArrowUpRight />
               </a>
             )}
           </div>
@@ -314,7 +314,7 @@ export default function Home() {
               )}
               {profile.links.scholar && (
                 <a className="btn" href={profile.links.scholar} target="_blank" rel="noreferrer">
-                  Scholar <ArrowUpRight />
+                  Google Scholar <ArrowUpRight />
                 </a>
               )}
               {profile.links.arxiv && (
