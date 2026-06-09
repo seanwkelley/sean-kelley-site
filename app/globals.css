@@ -413,6 +413,10 @@ section {
   background: var(--signal);
   transition: width 0.35s ease;
 }
+/* A lone last card (odd count) spans the full row instead of leaving a gap. */
+.cards .card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
 .card:hover {
   background: var(--bg-raised);
 }

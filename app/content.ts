@@ -103,13 +103,13 @@ export const building = [
     href: "",
   },
   {
-    id: "clearview",
-    title: "ClearView",
+    id: "discover-family",
+    title: "Discover Family",
     status: "In development",
     blurb:
-      "A browser-based tool that intercepts and analyzes AI-companion conversations, surfacing daily batch insights about interaction patterns and risk.",
-    tags: ["browser extension", "analysis"],
-    href: "",
+      "A 10-module web curriculum that teaches adolescents (13+) to recognize specific risk patterns in AI-companion conversations — sycophancy, parasocial attachment, persona dynamics, isolation, and crisis-response failures — with scripted scenarios, an LLM reflection coach, and opt-in adaptive practice sandboxes.",
+    tags: ["AI companion safety", "adolescents", "PWA"],
+    href: "", // TODO: live URL once it's public (Render service is up; subdomain TBD)
   },
 ];
 
