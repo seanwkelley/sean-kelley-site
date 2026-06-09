@@ -85,12 +85,12 @@ export const building = [
     href: "https://myndgard-discover.com",
   },
   {
-    id: "triage",
-    title: "Predictive Triage",
+    id: "share",
+    title: "Share",
     status: "Deployed",
     blurb:
-      "Built for a hard constraint in university counseling — a fixed pool of clinicians against fluctuating, unpredictable student demand. The system continuously models each student's mental-health trajectory and produces a clinician-facing summary the therapist reviews before the first session. Co-designed with counseling-center clinicians and administrators so non-technical staff trust the model's output in their workflow. In production with university counseling services; cut initial session time 15–20% and lowered the total sessions needed per student.",
-    tags: ["clinical ML", "clinician-in-the-loop", "university counseling", "decision support"],
+      "Closes the most dangerous gap in university counseling: the wait for care. Share does two things. During the waiting period it continuously monitors each student's mental health and surfaces those who are deteriorating to the clinic manager — so the students getting worse are seen sooner, instead of being triaged by who booked first. Then, at the first session, it gives the therapist a clinician-facing summary of that student. Co-designed with counseling-center clinicians and administrators; in production with university counseling services, where it cut initial session time 15–20% and lowered total sessions per student.",
+    tags: ["waitlist monitoring", "deterioration detection", "clinician-in-the-loop", "university counseling"],
     href: "",
   },
   {
