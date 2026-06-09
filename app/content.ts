@@ -31,7 +31,7 @@ export const profile = {
 export const about = [
   "I work across AI evaluation and human behavior. My PhD is in psychology, focused on computational psychiatry — building machine-learning and network models of mental health from real longitudinal data. That work led to first-author papers in Nature Communications, PNAS, and NPJ Digital Medicine.",
   "Now I build evaluations that turn vague claims about how language models behave into numbers you can compare across models. I also co-founded Myndgard, where I build AI safety and mental-health tools that universities use with their counseling services.",
-  "Most of what I do follows one pattern: take something people worry about but can't measure, make it measurable, then build something that acts on it.",
+  "My work splits in two: research on how AI behaves, and products that put it to use where it matters most — mostly mental health.",
 ];
 
 // ── Research — the evaluation / academic work ────────────────────────────────
