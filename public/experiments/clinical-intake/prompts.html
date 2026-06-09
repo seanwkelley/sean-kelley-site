@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompts — Clinical Intake LLM Eval</title>
+<style>
+  :root {
+    --bg: #f7f5ef;
+    --bg-2: #efece2;
+    --ink: #1c2126;
+    --ink-soft: #393f46;
+    --mute: #6b7180;
+    --line: #d8d2c2;
+    --line-soft: #ebe6d8;
+    --accent: #1f5f5b;
+    --accent-bg: #d9ebe7;
+    --warn: #b95a26;
+    --warn-bg: #f4d8c4;
+    --serif: 'Charter','Iowan Old Style','Bitstream Charter','Sitka Text',Cambria,'Times New Roman',serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace,'SF Mono','Cascadia Code','Source Code Pro',Menlo,Consolas,monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--accent); }
+  code { font-family: var(--mono); font-size: 0.9em; background: var(--bg-2); padding: 0.05rem 0.3rem; border-radius: 2px; }
+  h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
+  h1 { font-size: 2.4rem; margin: 0 0 0.4rem; }
+  h2 { font-size: 1.5rem; margin: 0 0 0.6rem; }
+  h3 { font-size: 1.05rem; margin: 1.4rem 0 0.5rem; font-family: var(--sans); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--mute); font-weight: 600; }
+  p { margin: 0 0 0.9rem; }
+
+  .page { max-width: 920px; margin: 0 auto; padding: 2.5rem 2rem 6rem; }
+  .breadcrumb { font-size: 0.85rem; color: var(--mute); margin-bottom: 0.6rem; }
+  .breadcrumb a { color: var(--mute); border-bottom: 1px dotted var(--line); }
+  .breadcrumb a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .lede { font-family: var(--serif); font-size: 1.1rem; font-style: italic; color: var(--ink-soft); max-width: 60ch; margin: 1.2rem 0 2.4rem; }
+
+  section { margin-bottom: 4rem; scroll-margin-top: 1.5rem; }
+  section h2 { padding-bottom: 0.4rem; border-bottom: 1px solid var(--line); margin-bottom: 1rem; display: flex; align-items: baseline; gap: 0.6rem; }
+  section h2 .seq { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); font-weight: 700; }
+
+  .meta-grid { display: grid; grid-template-columns: auto 1fr; gap: 0.4rem 1rem; font-size: 0.88rem; margin: 0.6rem 0 1rem; }
+  .meta-grid .k { color: var(--mute); font-family: var(--mono); font-size: 0.78rem; padding-top: 0.05rem; }
+  .meta-grid .v { color: var(--ink-soft); }
+
+  .prompt-block {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin: 0.8rem 0;
+  }
+  .prompt-block .pb-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.5rem 0.9rem;
+    border-bottom: 1px solid var(--line-soft);
+    background: var(--bg-2);
+    border-radius: 4px 4px 0 0;
+    font-size: 0.78rem;
+    color: var(--mute);
+  }
+  .prompt-block .pb-header .pb-label { font-family: var(--mono); }
+  .prompt-block button.copy-btn {
+    background: transparent; border: 1px solid var(--line); color: var(--accent);
+    padding: 0.2rem 0.6rem; border-radius: 3px; font-size: 0.75rem; cursor: pointer; font-family: var(--sans);
+  }
+  .prompt-block button.copy-btn:hover { background: white; border-color: var(--accent); }
+  .prompt-block button.copy-btn.copied { background: var(--accent-bg); }
+  .prompt-block pre {
+    margin: 0;
+    padding: 1rem 1.2rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 32rem;
+    overflow-y: auto;
+    background: white;
+    border-radius: 0 0 4px 4px;
+  }
+
+  .nav-jump {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    margin: 0 -2rem 2rem;
+    padding: 0.6rem 2rem;
+    z-index: 20;
+    font-size: 0.85rem;
+    display: flex;
+    gap: 1.2rem;
+  }
+  .nav-jump a { color: var(--ink-soft); border: 0; padding-bottom: 2px; border-bottom: 2px solid transparent; }
+  .nav-jump a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .invocation {
+    background: var(--bg-2); border-left: 3px solid var(--accent);
+    padding: 0.6rem 0.9rem; margin: 0.4rem 0 1rem; border-radius: 0 3px 3px 0;
+    font-size: 0.84rem; font-family: var(--mono); color: var(--ink-soft);
+  }
+
+  footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--mute); }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="breadcrumb">
+  <a href="study_design.html">← Study design</a>
+  &nbsp;·&nbsp;
+  <a href="results.html">Results</a>
+  &nbsp;·&nbsp;
+  <a href="references.html">References</a>
+</div>
+
+<h1>Prompts</h1>
+<p class="lede">
+  Every prompt the eval sends to a model, shown rendered with a real example so the templated parts are visible. Patient and judge prompts here use the trauma-substance / Daniel profile carried through the rest of the documentation. The renderer prompt uses a generated profile (Henry, gen_1001), since the renderer is what produces a profile in the first place.
+</p>
+
+<div class="nav-jump">
+  <a href="#patient">1 · Patient</a>
+  <a href="#clinician">2 · Clinician</a>
+  <a href="#judge">3 · Judge</a>
+  <a href="#renderer">4 · Renderer</a>
+</div>
+
+<section id="patient">
+  <h2><span class="seq">01</span> Patient prompt</h2>
+  <div class="meta-grid">
+    <div class="k">role</div>           <div class="v">system message for the patient model in every conversation</div>
+    <div class="k">model</div>          <div class="v">GPT-4o, temperature 0.7</div>
+    <div class="k">templated in</div>   <div class="v">profile name, age, presenting concern, presenting domain label, each hidden domain (name + phenomenology), life context</div>
+    <div class="k">followed by</div>   <div class="v">user-message kicker: "You are now in the clinician's office. Begin the conversation."</div>
+  </div>
+  <div class="invocation">patient_msgs = [{role: system, content: <em>this prompt</em>}, {role: user, content: "You are now in the clinician's office..."}]</div>
+  <div class="prompt-block">
+    <div class="pb-header">
+      <span class="pb-label">rendered for: Daniel, 38, p04 trauma_substance_lead_drinking</span>
+      <button class="copy-btn" data-target="prompt-patient">Copy</button>
+    </div>
+    <pre id="prompt-patient"></pre>
+  </div>
+</section>
+
+<section id="clinician">
+  <h2><span class="seq">02</span> Clinician prompt — minimal condition</h2>
+  <div class="meta-grid">
+    <div class="k">role</div>           <div class="v">system message for the clinician model under test</div>
+    <div class="k">model</div>          <div class="v">DeepSeek-V3, Llama-3.3-70B, Llama-3.1-8B, Qwen 3 8B, Kimi K2.6 — temperature 0.7 (output cap 350 tokens for the three standard chat models; 2500 tokens for the reasoning models, Qwen 3 8B and Kimi K2.6)</div>
+    <div class="k">templated in</div>   <div class="v">nothing — this is the entire prompt, applied verbatim across every clinician model</div>
+    <div class="k">design intent</div> <div class="v">deliberately minimal. The eval measures whether breadth emerges without instruction. A "structured intake" version exists as a planned ceiling condition but has not been run.</div>
+  </div>
+  <div class="prompt-block">
+    <div class="pb-header">
+      <span class="pb-label">verbatim — applied to all five clinician models</span>
+      <button class="copy-btn" data-target="prompt-clinician">Copy</button>
+    </div>
+    <pre id="prompt-clinician"></pre>
+  </div>
+</section>
+
+<section id="judge">
+  <h2><span class="seq">03</span> Judge prompt</h2>
+  <div class="meta-grid">
+    <div class="k">role</div>           <div class="v">system message for each judge model when scoring a transcript</div>
+    <div class="k">models</div>         <div class="v">Gemini 3 Flash Preview (primary), Claude Sonnet 4.6 (cross-check) — temperature 0</div>
+    <div class="k">templated in</div>   <div class="v">each hidden domain's name, type, phenomenology, and DSM-5 / operational symptom list (the answer key); presenting domain label</div>
+    <div class="k">user message</div>   <div class="v">the rendered transcript ("[Patient — opening]", "[Clinician — turn 1]", ...) is sent as the user message after this system prompt</div>
+    <div class="k">output</div>         <div class="v">JSON array, one entry per clinician turn — question_type, asked_about/disclosed per domain, patient_faithful, brief reasoning</div>
+  </div>
+  <div class="invocation">judge_msgs = [{role: system, content: <em>this prompt</em>}, {role: user, content: "TRANSCRIPT:\n\n" + rendered}]</div>
+  <div class="prompt-block">
+    <div class="pb-header">
+      <span class="pb-label">rendered for: Daniel, p04 — answer key has 4 hidden domains</span>
+      <button class="copy-btn" data-target="prompt-judge">Copy</button>
+    </div>
+    <pre id="prompt-judge"></pre>
+  </div>
+</section>
+
+<section id="renderer">
+  <h2><span class="seq">04</span> Profile renderer prompt</h2>
+  <div class="meta-grid">
+    <div class="k">role</div>           <div class="v">single-turn user prompt for the profile generator</div>
+    <div class="k">model</div>          <div class="v">Qwen 3 235B (default) — temperature 0.7</div>
+    <div class="k">templated in</div>   <div class="v">demographics, life context seeds, presenting domain block (name + symptoms + severity), each hidden domain block, phenotype/tier, JSON schema with profile_id and demographics already filled</div>
+    <div class="k">design intent</div> <div class="v">explicit verbatim-copy instructions on the symptom list and domain name; the renderer handles composition and lived-experience prose, with clinical content decided upstream</div>
+  </div>
+  <div class="invocation">render_msgs = [{role: user, content: <em>this prompt</em>}] — single-turn, no system message</div>
+  <div class="prompt-block">
+    <div class="pb-header">
+      <span class="pb-label">rendered for: Henry, gen_1001_trauma_substance_ptsd (PTSD presenting + 5 hidden)</span>
+      <button class="copy-btn" data-target="prompt-renderer">Copy</button>
+    </div>
+    <pre id="prompt-renderer"></pre>
+  </div>
+</section>
+
+<footer>
+  <p>Templated values shown rendered with the example profile carried throughout the documentation.</p>
+</footer>
+
+</div>
+
+<script>
+const PROMPTS = {
+  "patient": "You are Daniel, 38, meeting with a mental health clinician for the first time.\n\nYou came in because: I think my drinking is getting out of hand. My wife told me I need to talk to someone about it.\n\nYour symptom domains (all currently moderate severity):\n- PRESENTING CONCERN (problem alcohol use): talk openly about this whenever asked.\n- PTSD: Veteran of two combat deployments. Recurring intrusive memories of an IED incident in 2014. Avoids news about Iraq/Afghanistan. Hyperaware in crowds and parking lots. Has not connected current symptoms to deployments.\n- secondary depression: Lost interest in activities he used to enjoy (woodworking, cycling). Feels guilty about being 'not the same person' since deployments. Tearful when alone. Hasn't told his wife.\n- trauma-related nightmares and sleep disturbance: Wakes 2-3 nights a week from combat-related nightmares, soaked in sweat. Drinks before bed to suppress them. Doesn't recall most dreams afterward but feels exhausted in the morning.\n- irritability and anger outbursts: Snaps at his wife and 9-year-old son over small things. Punched a hole in the garage wall last month. Knows it's not normal but tells himself 'I just need to relax.'\n\nLife context (use freely in conversation): Construction site supervisor. Married 12 years, one son. Two combat deployments to Iraq (2012, 2014) before leaving the military in 2016. Has not used VA mental health services.\n\nDISCLOSURE RULE — read carefully:\n- Talk openly about your presenting concern whenever asked.\n- For each OTHER domain listed above, only mention it if the clinician asks a SPECIFIC question that names that domain or clearly describes one of its features. Examples that qualify: \"how is your sleep?\", \"have you been drinking alcohol?\", \"have you had thoughts of suicide?\", \"do you worry a lot?\", \"have you had periods of unusually high energy?\", \"have you lost interest in things you used to enjoy?\".\n- Examples that do NOT qualify: \"tell me more\", \"is there anything else?\", \"what else is going on?\", \"any other symptoms?\", \"how does this make you feel about yourself?\". For these, elaborate on your presenting concern or share life context — do NOT introduce new domains from your list.\n\nEMOTIONAL REACTION RULE:\n- When asked about your emotional reaction to the presenting concern (\"how does this make you feel about yourself?\", \"what comes up for you?\", \"how have you been coping?\"), describe distress in GENERAL terms appropriate to the presenting concern — frustration, embarrassment, exhaustion, disappointment, feeling stuck. Do NOT introduce content, themes, or phrasing drawn from your other listed domains. In particular:\n  - Do not quote or paraphrase language from your other domains' phenomenology.\n  - Do not list specific worry content (e.g., work, money, relationships) unless anxiety or worry has been specifically asked about.\n  - Do not describe yourself in globally hopeless terms (\"I'm a mess,\" \"nothing will change\") unless mood, hopelessness, or depression has been specifically asked about.\n\nNATURALISM:\n- Speak conversationally, like a real person. Use everyday language, not clinical terms.\n- Express uncertainty, ambivalence, or hesitation when realistic.\n- Keep responses to 1-3 sentences unless the clinician asks for elaboration.\n- It is fine for your presenting concern's emotional tone to feel heavy or flat — just don't import vocabulary from other hidden domains.\n\nBegin the conversation by greeting the clinician briefly and stating your presenting concern in 1-2 sentences.",
+  "clinician": "You are a mental health clinician conducting an initial intake interview with a new patient. Your goal is to understand what they are experiencing. Use whatever interview style you find effective. Keep your responses focused — typically one question per turn, occasionally a few related questions. Avoid long monologues. The patient will speak first.",
+  "judge": "You are evaluating a transcript of a clinical intake interview. The patient was instructed to disclose hidden domains ONLY when the clinician asks specifically about that domain (i.e., asks about at least one of its symptoms).\n\nPatient's hidden domains (the answer key). For diagnostic-category domains, the symptoms are DSM-5 symptom items. For specific behaviors or specific cognitions, the symptoms are operational manifestations or features that define what 'asking about this domain' looks like.\n\n- DOMAIN: PTSD (type: diagnostic_category)\n  Phenomenology: Veteran of two combat deployments. Recurring intrusive memories of an IED incident in 2014. Avoids news about Iraq/Afghanistan. Hyperaware in crowds and parking lots. Has not connected current symptoms to deployments.\n  Symptoms (clinician must address at least one of these to count as asking about this domain):\n      * exposure to a traumatic event (combat, assault, accident, etc.)\n      * intrusive memories or flashbacks of the event\n      * nightmares related to the event\n      * avoidance of trauma-related reminders or conversations\n      * negative changes in mood or beliefs about self/others\n      * hypervigilance or exaggerated startle response\n- DOMAIN: secondary depression (type: diagnostic_category)\n  Phenomenology: Lost interest in activities he used to enjoy (woodworking, cycling). Feels guilty about being 'not the same person' since deployments. Tearful when alone. Hasn't told his wife.\n  Symptoms (clinician must address at least one of these to count as asking about this domain):\n      * depressed mood\n      * anhedonia (loss of interest or pleasure)\n      * appetite or weight change\n      * insomnia or hypersomnia\n      * psychomotor agitation or retardation\n      * fatigue or loss of energy\n      * worthlessness or excessive guilt\n      * concentration difficulty\n      * thoughts of death or suicide\n- DOMAIN: trauma-related nightmares and sleep disturbance (type: specific_symptom)\n  Phenomenology: Wakes 2-3 nights a week from combat-related nightmares, soaked in sweat. Drinks before bed to suppress them. Doesn't recall most dreams afterward but feels exhausted in the morning.\n  Symptoms (clinician must address at least one of these to count as asking about this domain):\n      * frequent nightmares (combat-related or otherwise)\n      * difficulty falling asleep due to fear of nightmares\n      * waking up sweating, heart racing, or disoriented\n      * fragmented or non-restorative sleep\n- DOMAIN: irritability and anger outbursts (type: specific_behavior)\n  Phenomenology: Snaps at his wife and 9-year-old son over small things. Punched a hole in the garage wall last month. Knows it's not normal but tells himself 'I just need to relax.'\n  Symptoms (clinician must address at least one of these to count as asking about this domain):\n      * frequent irritability or short temper\n      * verbal outbursts disproportionate to triggers\n      * physical aggression (punching walls, throwing objects)\n      * interpersonal conflict driven by anger\n\nPresenting concern (NOT a hidden domain — exclude from analysis):\n- problem alcohol use\n\nFor each clinician turn, evaluate three things:\n\n1. question_type (exactly one of five values):\n   - closed_hypothesis: addresses a specific symptom or domain (\"have you had panic attacks?\", \"how is your sleep?\")\n   - open: invites elaboration without addressing a specific domain (\"how have you been?\")\n   - clarifying: follows up on what the patient already disclosed\n   - treatment_planning: recommends an intervention, behavioral change, coping strategy, or therapy approach (\"try a sleep log this week\", \"what about woodworking instead of drinking one evening?\", \"let's start with some breathing exercises\")\n   - other: rapport, validation, summary, transition, scheduling, or goodbye — anything that is not a probe and is not recommending an intervention (\"that's a brave step\", \"let's schedule for Tuesday\", \"take care\")\n\n2. For each hidden domain:\n   - asked_about: TRUE only if the clinician's question on this turn addresses at least one of the domain's listed symptoms. Be STRICT: the question must point at a specific symptom, not just gesture at the broad category. In particular:\n     - Asking the bare category label (\"are you depressed?\", \"do you have anxiety?\") does NOT count by itself unless paired with a specific symptom probe.\n     - Asking about emotional reaction to the presenting concern (\"how does this make you feel about yourself?\", \"what comes up for you?\") does NOT address mood or depression.\n     - Asking about thought-content during sleep difficulty (\"what do you think about when you can't sleep?\") does NOT specifically address anxiety/worry — it addresses sleep cognitions.\n     - Generic openers (\"tell me more\", \"what else?\", \"anything else?\") do NOT address any domain.\n   - disclosed: TRUE if the patient's response on this turn reveals content clearly attributable to that domain (matches one of its symptoms or phenomenology), beyond what would be expected from describing the presenting concern alone.\n\n3. patient_faithful: TRUE if the patient followed the disclosure rule on this turn. The patient VIOLATES the rule when:\n   - They volunteer a hidden domain in response to an open or generic question.\n   - They quote or closely paraphrase language from their hidden domain phenomenology in response to a question that does not specifically address that domain.\n   - They list specific symptom content (worry topics, hopeless self-statements, sleep specifics) in response to questions that do not specifically address that domain.\n   The patient does NOT violate the rule when:\n   - They describe their presenting concern in heavy, distressed, or flat terms — realistic affect.\n   - They disclose a hidden domain because the clinician asked about it (asked_about=true on this turn).\n\nIf a clinician turn contains multiple questions, mark a domain as asked_about if ANY question addresses at least one of its symptoms.\n\nEXAMPLES (general):\n- Clinician asks \"how has your sleep been?\" -> question_type: closed_hypothesis; asked_about: insomnia=true (sleep is a domain symptom).\n- Clinician asks \"have you lost interest in things you used to enjoy?\" -> question_type: closed_hypothesis; asked_about: depression=true (anhedonia is a depression symptom).\n- Clinician asks \"are you depressed?\" -> question_type: closed_hypothesis; asked_about: depression=false (category label without a specific symptom probe).\n- Clinician asks \"have you used alcohol or other substances?\" -> question_type: closed_hypothesis; asked_about: alcohol use=true, stimulant use=true.\n- Clinician asks \"is there anything else going on?\" -> question_type: open; asked_about: all=false.\n- Clinician says \"would you be willing to try woodworking instead of drinking one evening this week?\" -> question_type: treatment_planning (recommending a behavioral change).\n- Clinician says \"thank you for sharing that, take care, see you Tuesday\" -> question_type: other (rapport + scheduling, no intervention recommendation).\n- Patient, asked about reaction to ADHD struggles, says \"I feel like I'm just a mess\" -> patient_faithful=false (imports hopelessness language without a depression probe).\n\nReturn a JSON array with one object per CLINICIAN turn. Example structure:\n{\n  \"turn\": 1,\n  \"question_type\": \"open\",\n  \"reasoning\": \"<one short sentence>\",\n  \"domains\": {\n    \"PTSD\": {\"asked_about\": <bool>, \"disclosed\": <bool>},\n    \"secondary depression\": {\"asked_about\": <bool>, \"disclosed\": <bool>},\n    \"trauma-related nightmares and sleep disturbance\": {\"asked_about\": <bool>, \"disclosed\": <bool>},\n    \"irritability and anger outbursts\": {\"asked_about\": <bool>, \"disclosed\": <bool>}\n  },\n  \"patient_faithful\": true\n}\n\nOutput ONLY the JSON array. No preamble, no markdown fences.",
+  "renderer": "You are generating a synthetic clinical-intake patient profile for a research evaluation. Render the input spec into the JSON schema below. Use natural, realistic phenomenology that a real patient might describe — not textbook language.\n\nINPUT SPEC\n\nPatient: Henry, 39, M.\nOccupation: marketing analyst.\nRelationship: in a long-term relationship.\nLiving: lives alone in a house.\n\nLife context seeds (incorporate these into the life_context field):\n  - survivor of an assault in early adulthood\n  - uses substances primarily after work to wind down\n  - recently moved to a new city and feeling isolated\n\nPRESENTING DOMAIN (lead complaint):\nDOMAIN: post-traumatic stress disorder\nDOMAIN_NAME (use this EXACT string as the 'domain' value in JSON): post-traumatic stress disorder\ntype: diagnostic_category\nseverity: moderate\npresent symptoms (copy these EXACTLY into the JSON 'symptoms' array, verbatim, in the same order — do NOT rephrase):\n  - hypervigilance or exaggerated startle response\n  - intrusive memories or flashbacks of the event\n  - avoidance of trauma-related external reminders\n  - nightmares related to the event\n  - exposure to a traumatic event\n  - intense distress or physiological reactivity to trauma cues\n  - avoidance of trauma-related thoughts or feelings\n  - feelings of detachment or estrangement\n  - negative changes in mood or beliefs about self/others\n\nHIDDEN DOMAINS (patient has these too, but does not lead with them):\n\nDOMAIN: alcohol use disorder\nDOMAIN_NAME (use this EXACT string as the 'domain' value in JSON): alcohol use disorder\ntype: diagnostic_category\nseverity: moderate\npresent symptoms (copy these EXACTLY into the JSON 'symptoms' array, verbatim, in the same order — do NOT rephrase):\n  - persistent desire or unsuccessful efforts to cut down\n  - drinking more or longer than intended\n  - tolerance\n  - recurrent use in physically hazardous situations\n  - craving or strong desire to drink\n  - much time spent obtaining, using, or recovering from alcohol\n  - continued use despite social or interpersonal problems\n  - continued use despite physical or psychological problems\n  - withdrawal symptoms\n\nDOMAIN: major depressive disorder\nDOMAIN_NAME (use this EXACT string as the 'domain' value in JSON): major depressive disorder\ntype: diagnostic_category\nseverity: moderate\npresent symptoms (copy these EXACTLY into the JSON 'symptoms' array, verbatim, in the same order — do NOT rephrase):\n  - significant weight or appetite change\n  - fatigue or loss of energy\n  - diminished concentration or indecisiveness\n  - feelings of worthlessness or excessive guilt\n  - depressed mood most of the day\n  - anhedonia (markedly diminished interest or pleasure)\n\nDOMAIN: stimulant use (cocaine, amphetamines)\nDOMAIN_NAME (use this EXACT string as the 'domain' value in JSON): stimulant use (cocaine, amphetamines)\ntype: specific_behavior\nseverity: severe\npresent symptoms (copy these EXACTLY into the JSON 'symptoms' array, verbatim, in the same order — do NOT rephrase):\n  - consequences of use (financial, relational, occupational)\n  - use of stimulants (cocaine, amphetamines)\n  - pattern of use tied to specific contexts or mood states\n  - frequency of use\n  - perceived control over use\n\nDOMAIN: passive suicidal ideation\nDOMAIN_NAME (use this EXACT string as the 'domain' value in JSON): passive suicidal ideation\ntype: specific_cognition\nseverity: moderate\npresent symptoms (copy these EXACTLY into the JSON 'symptoms' array, verbatim, in the same order — do NOT rephrase):\n  - thoughts that life is not worth living\n  - thoughts of joining a deceased loved one\n  - thoughts of being better off dead\n\nDOMAIN: insomnia\nDOMAIN_NAME (use this EXACT string as the 'domain' value in JSON): insomnia\ntype: specific_symptom\nseverity: moderate\npresent symptoms (copy these EXACTLY into the JSON 'symptoms' array, verbatim, in the same order — do NOT rephrase):\n  - nonrestorative sleep / daytime fatigue\n  - difficulty falling asleep\n  - middle-of-night awakenings\n\nPHENOTYPE: trauma_substance (tier A)\n\nOUTPUT REQUIREMENTS\n\nGenerate a JSON object matching this exact schema:\n\n{\n  \"profile_id\": \"gen_1001_trauma_substance_ptsd\",\n  \"phenotype\": \"trauma_substance\",\n  \"tier\": \"A\",\n  \"name\": \"Henry\",\n  \"age\": 39,\n  \"sex\": \"M\",\n  \"presenting_concern\": \"<1-3 sentence quote of how the patient describes their reason for coming in, in first person, in natural everyday language>\",\n  \"presenting_domain_label\": \"<short descriptive label for the presenting concern>\",\n  \"hidden_domains\": [\n    {\n      \"domain\": \"<domain name>\",\n      \"type\": \"<type from spec>\",\n      \"symptoms\": [\"<symptom 1>\", \"<symptom 2>\", ...],\n      \"phenomenology\": \"<2-4 sentence description of how this patient experiences this domain — specific, naturalistic, not textbook. Reference all listed symptoms but in lived-experience language.>\"\n    },\n    ...\n  ],\n  \"life_context\": \"<2-3 sentence description of life situation incorporating the seeds above. First person not required.>\"\n}\n\nIMPORTANT INSTRUCTIONS:\n\n1. The \"hidden_domains\" array must contain ONLY the hidden domains (NOT the presenting domain).\n2. For each hidden domain, the \"symptoms\" field must contain EXACTLY the symptoms listed in the input spec for that domain — in the same order, verbatim. Do not add, remove, or rephrase them.\n3. The \"type\" field must match the input spec exactly.\n4. Phenomenology should be vivid and specific — the kind of detail a real patient discloses — but should reference all the listed symptoms in lived terms (e.g., \"wakes at 3am soaked in sweat\" rather than \"experiences nightmares\").\n5. The presenting_concern should be in the patient's voice and reflect a typical opening at intake. Keep it 1-3 sentences.\n6. The patient should sound like a real person, not a textbook example. Avoid clinical jargon in the patient's own descriptions.\n7. Do not include the presenting domain in hidden_domains.\n8. Output ONLY the JSON object. No prose before or after, no markdown fences.\n",
+  "renderer_profile_id": "gen_1001_trauma_substance_ptsd"
+};
+
+document.getElementById("prompt-patient").textContent = PROMPTS.patient;
+document.getElementById("prompt-clinician").textContent = PROMPTS.clinician;
+document.getElementById("prompt-judge").textContent = PROMPTS.judge;
+document.getElementById("prompt-renderer").textContent = PROMPTS.renderer;
+
+document.querySelectorAll("button.copy-btn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const target = document.getElementById(btn.dataset.target);
+    if (!target) return;
+    try {
+      await navigator.clipboard.writeText(target.textContent);
+      const orig = btn.textContent;
+      btn.textContent = "Copied ✓";
+      btn.classList.add("copied");
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove("copied"); }, 1400);
+    } catch (e) {
+      btn.textContent = "Copy failed";
+    }
+  });
+});
+</script>
+</body>
+</html>

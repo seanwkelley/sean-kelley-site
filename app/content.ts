@@ -201,3 +201,40 @@ export const grants = [
   { name: "EIT Health Wild Card", detail: "1 of 8 EU startups" },
   { name: "Dogpatch Labs Founders Programme", detail: "Resident" },
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  LAB — self-contained mini-experiments. Each is a question → build → finding.
+//  Full interactive writeups live as static pages under /public/experiments/.
+// ─────────────────────────────────────────────────────────────────────────────
+export const labIntro =
+  "Short experiments I run to probe a question end to end — build the harness, measure something, see what falls out. Exploratory by design; some are dead ends, the interesting ones are written up below.";
+
+export const experiments = [
+  {
+    id: "clinical-intake",
+    title: "What can an LLM intake agent surface that the patient never volunteers?",
+    eyebrow: "LLM evaluation · clinical intake · synthetic patients",
+    status: "Write-up live",
+    // The setup / what I built.
+    method:
+      "I built a synthetic-patient harness: a GPT-4o model role-plays a patient with a presenting complaint plus 4–5 hidden symptom domains it will only reveal if asked specifically (a strict disclosure rule). Five LLM “clinicians” each run a 12-turn intake on the same minimal “you are a clinician” prompt. 540 cells (18 phenotypes × 5 models × 6 profiles), dual-judged by Gemini 3 Flash and Claude Sonnet 4.6, scoring how many hidden domains each interview actually surfaces.",
+    // The finding.
+    finding:
+      "Reasoning is the variable that matters — not model size, and not the prompt. Standard chat models surfaced only 14–18% of hidden symptoms; a small reasoning model reached 27%, and a large one (Kimi K2.6) reached 56% — roughly 3× the next best — spontaneously asking symptom-specific questions across nearly all domains without being told to. The gains concentrated exactly where it counts clinically: masked presentations like bipolar, postpartum, and somatic cases, where chat models scored near zero.",
+    // Honest caveat — keeps it research-credible.
+    caveat:
+      "Patients are simulated, so the absolute percentages aren't real-world forecasts; the supported claim is relative — reasoning models produce probing behavior the chat models simply don't.",
+    stats: [
+      { value: "14–18%", label: "standard chat models" },
+      { value: "27%", label: "small reasoning (Qwen 3 8B)" },
+      { value: "56%", label: "large reasoning (Kimi K2.6)" },
+    ],
+    tags: ["540-cell eval", "synthetic patients", "LLM-as-judge", "reasoning vs. chat"],
+    // Links into the hosted static write-up.
+    links: [
+      { label: "Read the full analysis", href: "/experiments/clinical-intake/results.html", primary: true },
+      { label: "Study design", href: "/experiments/clinical-intake/study_design.html" },
+      { label: "Prompts", href: "/experiments/clinical-intake/prompts.html" },
+    ],
+  },
+];

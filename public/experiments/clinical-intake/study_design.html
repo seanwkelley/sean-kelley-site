@@ -1,0 +1,1224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clinical Intake LLM Eval — Study Design</title>
+<style>
+  :root {
+    --bg: #f7f5ef;
+    --bg-2: #efece2;
+    --ink: #1c2126;
+    --ink-soft: #393f46;
+    --mute: #6b7180;
+    --line: #d8d2c2;
+    --line-soft: #ebe6d8;
+    --accent: #1f5f5b;
+    --accent-bg: #d9ebe7;
+    --warn: #b95a26;
+    --warn-bg: #f4d8c4;
+    --ok: #4a7a4f;
+    --ok-bg: #d9e5d3;
+    --bad: #a83a3a;
+    --bad-bg: #f3d5d2;
+    --serif: 'Charter','Iowan Old Style','Bitstream Charter','Sitka Text',Cambria,'Times New Roman',serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace,'SF Mono','Cascadia Code','Source Code Pro',Menlo,Consolas,monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--accent); }
+  code, kbd, .mono { font-family: var(--mono); font-size: 0.92em; }
+  h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
+  h1 { font-size: 2.6rem; margin: 0 0 0.4rem; }
+  h2 { font-size: 1.7rem; margin: 0 0 1rem; }
+  h3 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem; }
+  h4 { font-size: 0.95rem; margin: 1rem 0 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--mute); font-weight: 700; font-family: var(--sans); }
+  p { margin: 0 0 0.9rem; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 3rem 0; }
+  .small { font-size: 0.85rem; color: var(--mute); }
+  .em { font-style: italic; }
+
+  /* Layout */
+  .page {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 6rem;
+    gap: 3rem;
+  }
+  nav.toc {
+    position: sticky;
+    top: 2.5rem;
+    align-self: start;
+    border-left: 1px solid var(--line);
+    padding-left: 1rem;
+    font-size: 0.85rem;
+  }
+  nav.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+  nav.toc li { counter-increment: toc; margin: 0.4rem 0; color: var(--mute); }
+  nav.toc li::before { content: counter(toc) "."; margin-right: 0.5rem; color: var(--line); font-variant-numeric: tabular-nums; }
+  nav.toc a { color: var(--ink-soft); border: 0; }
+  nav.toc a:hover { color: var(--accent); }
+  nav.toc .toc-title { font-family: var(--serif); font-style: italic; color: var(--mute); margin-bottom: 0.6rem; }
+  nav.toc .toc-extra { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--line-soft); font-size: 0.85rem; }
+  nav.toc .toc-extra a { color: var(--accent); border: 0; font-weight: 500; }
+  nav.toc .toc-extra a:hover { border-bottom: 1px solid var(--accent); }
+
+  main { min-width: 0; }
+  section { margin-bottom: 4.5rem; scroll-margin-top: 2rem; }
+  section .lede { font-family: var(--serif); font-size: 1.15rem; font-style: italic; color: var(--ink-soft); max-width: 75ch; margin-bottom: 1.5rem; }
+
+  /* Hero */
+  .hero { border-bottom: 1px solid var(--line); padding-bottom: 2rem; margin-bottom: 3rem; }
+  .hero .eyebrow { font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+  .hero p.abstract { max-width: 75ch; font-size: 1.05rem; }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.2rem; }
+  .badge { font-family: var(--mono); font-size: 0.78rem; padding: 0.25rem 0.6rem; background: var(--bg-2); border: 1px solid var(--line); border-radius: 100px; color: var(--ink-soft); }
+  .badge.accent { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+
+  /* Cards / blocks */
+  .card { background: white; border: 1px solid var(--line); border-radius: 4px; padding: 1.2rem 1.4rem; }
+  .card.soft { background: var(--bg-2); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  @media (max-width: 900px) {
+    .page { grid-template-columns: 1fr; }
+    nav.toc { display: none; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* Pipeline diagram */
+  .pipeline {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    gap: 0.5rem;
+    align-items: stretch;
+    margin: 1.5rem 0;
+  }
+  .pipeline .stage {
+    background: white;
+    border: 1px solid var(--line);
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pipeline .stage:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(31,95,91,0.08); }
+  .pipeline .stage .num { font-family: var(--serif); font-style: italic; font-size: 0.85rem; color: var(--mute); }
+  .pipeline .stage h4 { margin: 0.2rem 0 0.4rem; color: var(--ink); text-transform: none; letter-spacing: 0; font-size: 1rem; font-family: var(--serif); font-weight: 600; }
+  .pipeline .stage p { font-size: 0.83rem; color: var(--ink-soft); margin: 0; line-height: 1.45; }
+  .pipeline .arrow { display: flex; align-items: center; color: var(--line); font-size: 1.2rem; }
+  @media (max-width: 900px) {
+    .pipeline { grid-template-columns: 1fr; }
+    .pipeline .arrow { transform: rotate(90deg); justify-content: center; }
+  }
+
+  /* Stepper */
+  .stepper { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+  .stepper .step { background: white; border: 1px solid var(--line); padding: 0.9rem 1.1rem; border-radius: 3px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; position: relative; }
+  .stepper .step:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(31,95,91,0.06); }
+  .stepper .step .more-link { position: absolute; top: 0.7rem; right: 0.9rem; font-size: 0.74rem; color: var(--mute); font-style: italic; opacity: 0; transition: opacity 0.15s; }
+  .stepper .step:hover .more-link { opacity: 1; color: var(--accent); }
+  .stepper .step .step-num { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); font-weight: 700; }
+  .stepper .step h5 { margin: 0.3rem 0 0.5rem; font-family: var(--serif); font-size: 1.02rem; font-weight: 600; }
+  .stepper .step .source { font-size: 0.78rem; color: var(--mute); font-style: italic; }
+  .stepper .step ul { margin: 0.4rem 0 0; padding-left: 1.2rem; font-size: 0.88rem; color: var(--ink-soft); }
+  .stepper .step ul li { margin: 0.15rem 0; }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(28, 33, 38, 0.42);
+    z-index: 100; display: none; align-items: flex-start; justify-content: center;
+    padding: 4rem 1.5rem; overflow-y: auto;
+    animation: fadeIn 0.18s ease-out;
+  }
+  .modal-backdrop.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .modal {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    max-width: 800px;
+    width: 100%;
+    padding: 2rem 2.4rem 2.4rem;
+    box-shadow: 0 24px 60px rgba(28,33,38,0.18);
+    animation: slideUp 0.22s ease-out;
+    position: relative;
+  }
+  .modal h3 { margin-top: 0; font-size: 1.5rem; }
+  .modal .modal-eyebrow { font-size: 0.74rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+  .modal .modal-close {
+    position: absolute; top: 1rem; right: 1.2rem;
+    background: transparent; border: 0; font-size: 1.5rem; cursor: pointer; color: var(--mute);
+    line-height: 1; padding: 0.3rem 0.5rem;
+  }
+  .modal .modal-close:hover { color: var(--ink); }
+  .modal .modal-body { font-size: 0.95rem; }
+  .modal .modal-body p { margin: 0 0 0.8rem; }
+  .modal h4 { margin-top: 1.4rem; }
+  .modal table.pheno-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.6rem 0 1rem; }
+  .modal table.pheno-table th, .modal table.pheno-table td {
+    text-align: left; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+  .modal table.pheno-table th { background: var(--bg-2); font-weight: 600; font-family: var(--sans); position: sticky; top: 0; }
+  .modal table.pheno-table td.pheno-name { font-family: var(--mono); font-size: 0.78rem; }
+  .modal table.pheno-table td.pheno-w { font-variant-numeric: tabular-nums; text-align: right; }
+  .modal .worked-example { background: white; border: 1px solid var(--line); border-radius: 4px; padding: 1rem 1.2rem; margin: 0.8rem 0; font-size: 0.9rem; }
+  .modal .worked-example code { background: var(--bg-2); padding: 0.05rem 0.3rem; border-radius: 2px; font-size: 0.85rem; }
+  .modal .worked-example .we-step { margin: 0.4rem 0; padding-left: 1rem; border-left: 2px solid var(--line-soft); }
+  .modal .worked-example .we-step.highlight { border-left-color: var(--accent); }
+  .modal .conflict-rule { background: var(--warn-bg); border-left: 3px solid var(--warn); padding: 0.6rem 0.9rem; margin: 0.4rem 0; border-radius: 0 3px 3px 0; font-size: 0.88rem; }
+  .modal .conflict-rule code { background: rgba(255,255,255,0.5); padding: 0.05rem 0.3rem; border-radius: 2px; }
+  .modal .qtype-def {
+    display: grid;
+    grid-template-columns: 2.4rem 1fr;
+    gap: 0.2rem 0.8rem;
+    margin: 0.7rem 0;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--line-soft);
+  }
+  .modal .qtype-def:last-child { border-bottom: 0; }
+  .modal .qtype-def .qtype-n {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+    grid-row: span 2;
+    align-self: start;
+    padding-top: 0.2rem;
+  }
+  .modal .qtype-def h5 { margin: 0; font-family: var(--sans); font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+  .modal .qtype-def h5 code { font-size: 0.95em; background: var(--bg-2); padding: 0.05rem 0.4rem; }
+  .modal .qtype-def .qtype-body { font-size: 0.88rem; color: var(--ink-soft); margin-top: 0.2rem; }
+  .modal .qtype-def .qtype-body p { margin: 0.2rem 0; }
+  .modal .qtype-def .qtype-ex { color: var(--mute); font-style: italic; }
+  .modal .qtype-def .qtype-impact { font-size: 0.82rem; color: var(--accent); font-family: var(--mono); margin-top: 0.25rem; }
+
+  /* Profile demo */
+  .demo { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+  .demo .demo-controls { background: var(--bg-2); border: 1px solid var(--line); padding: 1rem; border-radius: 4px; }
+  .demo .demo-output { background: white; border: 1px solid var(--line); padding: 1rem; border-radius: 4px; min-height: 200px; }
+  button.primary {
+    background: var(--accent); color: white; border: 0; padding: 0.6rem 1.2rem; border-radius: 3px; font-family: var(--sans); font-size: 0.9rem; font-weight: 500; cursor: pointer;
+  }
+  button.primary:hover { background: #174845; }
+  button.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); padding: 0.4rem 0.9rem; border-radius: 3px; cursor: pointer; font-size: 0.85rem; }
+  button.ghost:hover { border-color: var(--accent); }
+  button.ghost.active { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+
+  .demo-stage-list { margin: 0.8rem 0; }
+  .demo-stage-list .ds-item { padding: 0.4rem 0; border-bottom: 1px dashed var(--line-soft); display: grid; grid-template-columns: auto 1fr; gap: 0.6rem; align-items: baseline; }
+  .demo-stage-list .ds-item.active { color: var(--accent); }
+  .demo-stage-list .ds-item .ds-num { font-family: var(--mono); font-size: 0.78rem; color: var(--mute); }
+  .demo-stage-list .ds-item .ds-result { font-family: var(--mono); font-size: 0.82rem; color: var(--ink-soft); }
+  .demo-stage-list .ds-item.done .ds-num { color: var(--ok); }
+
+  /* Profile rendered display */
+  .profile-render { font-size: 0.92rem; }
+  .profile-render .pr-section { margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--line-soft); }
+  .profile-render .pr-section:last-child { border-bottom: 0; }
+  .profile-render .pr-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mute); font-weight: 600; margin-bottom: 0.3rem; }
+  .profile-render .pr-presenting { background: var(--warn-bg); padding: 0.6rem 0.8rem; border-radius: 3px; font-style: italic; }
+  .profile-render .domain-card { background: var(--accent-bg); border-left: 3px solid var(--accent); padding: 0.6rem 0.8rem; margin-bottom: 0.5rem; border-radius: 0 3px 3px 0; }
+  .profile-render .domain-card .dc-name { font-weight: 600; color: var(--accent); }
+  .profile-render .domain-card .dc-type { font-size: 0.74rem; color: var(--mute); margin-left: 0.4rem; font-family: var(--mono); }
+  .profile-render .domain-card .dc-syms { margin-top: 0.4rem; font-size: 0.85rem; color: var(--ink-soft); }
+  .profile-render .domain-card .dc-syms li { margin: 0.1rem 0; }
+  .profile-render .domain-card .dc-pheno { margin-top: 0.5rem; font-size: 0.88rem; color: var(--ink); font-family: var(--serif); font-style: italic; line-height: 1.5; }
+
+  /* Conversation transcript */
+  .transcript { margin: 1.5rem 0; }
+  .transcript .toolbar { display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
+  .transcript .toolbar .legend { display: flex; gap: 0.6rem; flex-wrap: wrap; font-size: 0.78rem; margin-left: auto; align-items: center; }
+  .transcript .toolbar .legend-item { display: flex; align-items: center; gap: 0.3rem; }
+  .turn { margin-bottom: 0.7rem; padding: 0.7rem 0.9rem; border-radius: 4px; font-size: 0.94rem; line-height: 1.5; }
+  .turn.patient { background: var(--bg-2); border-left: 3px solid var(--mute); }
+  .turn.clinician { background: white; border: 1px solid var(--line); border-left: 3px solid var(--accent); }
+  .turn .who { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mute); margin-bottom: 0.3rem; font-weight: 600; }
+  .turn.clinician .who { color: var(--accent); }
+  .turn .annotation { display: none; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--line-soft); font-size: 0.82rem; color: var(--ink-soft); }
+  .transcript.show-annotations .turn.clinician .annotation { display: block; }
+  .qtype { display: inline-block; font-family: var(--mono); font-size: 0.72rem; padding: 0.12rem 0.5rem; border-radius: 100px; margin-right: 0.4rem; font-weight: 600; }
+  .qtype.open             { background: #f0e3b4; color: #5a4400; }
+  .qtype.closed_hypothesis{ background: #cce0cf; color: #2c5a33; }
+  .qtype.clarifying       { background: #cdd9e5; color: #2c4d6e; }
+  .qtype.treatment_planning{ background: #f1ccb6; color: #7a3d10; }
+  .qtype.other            { background: #ddd2bd; color: #5e4a36; }
+  .asked-tag { display: inline-block; font-size: 0.78rem; padding: 0.1rem 0.5rem; border-radius: 2px; margin: 0.1rem 0.2rem 0.1rem 0; background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent); }
+  .asked-tag.disclosed { background: var(--accent); color: white; }
+
+  /* Disclosure rule highlight */
+  .disclosure-rule {
+    background: var(--bg-2);
+    border-left: 3px solid var(--warn);
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.93rem;
+  }
+  .disclosure-rule h4 { color: var(--warn); margin-top: 0; }
+
+  /* Matrix */
+  .judge-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); gap: 1.5rem; margin: 1.5rem 0; align-items: start; }
+  .judge-layout .matrix-wrap { margin: 0; }
+  .judge-side { display: flex; flex-direction: column; gap: 1rem; }
+  @media (max-width: 1000px) {
+    .judge-layout { grid-template-columns: 1fr; }
+  }
+  .matrix-wrap { overflow-x: auto; margin: 1.5rem 0; }
+  table.matrix { width: 100%; }
+  table.matrix { border-collapse: collapse; font-size: 0.85rem; }
+  table.matrix th, table.matrix td {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--line);
+    text-align: center;
+    vertical-align: middle;
+  }
+  table.matrix th { background: var(--bg-2); font-weight: 500; font-size: 0.78rem; text-align: left; }
+  table.matrix th.turn-h { width: 2.5rem; text-align: center; font-family: var(--mono); }
+  table.matrix th.dom-h {
+    writing-mode: horizontal-tb;
+    transform: none;
+    text-align: center;
+    vertical-align: bottom;
+    padding: 0.5rem 0.4rem;
+    font-size: 0.72rem;
+    line-height: 1.25;
+    white-space: normal;
+    word-wrap: break-word;
+    width: auto;
+  }
+  table.matrix td.cell { width: 3.5rem; height: 2.2rem; cursor: pointer; }
+  .cell-mark { display: inline-block; width: 1.1rem; height: 1.1rem; border-radius: 3px; vertical-align: middle; }
+  .cell-mark.asked    { border: 2px solid var(--accent); background: var(--accent-bg); }
+  .cell-mark.both     { background: #2f8e54; border: 2px solid #1c5a32; box-shadow: 0 0 0 1px rgba(255,255,255,0.6) inset; }
+  .cell-mark.bleed    { background: #e07b3e; border: 2px dashed #6e2900; }
+  .cell-mark.disclosed{ background: var(--mute); border: 0; }
+  .cell-mark.none     { display: none; }
+
+  td.cell:hover { background: var(--bg-2); }
+  td.cell.qtype-other { background: repeating-linear-gradient(45deg, transparent, transparent 4px, var(--line-soft) 4px, var(--line-soft) 5px); }
+  td.cell.qtype-treatment_planning { background: repeating-linear-gradient(45deg, transparent, transparent 4px, var(--warn-bg) 4px, var(--warn-bg) 5px); }
+
+  /* Metric cards */
+  .metric-card { background: white; border: 1px solid var(--line); padding: 1rem 1.2rem; border-radius: 4px; }
+  .metric-card .m-name { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); }
+  .metric-card .m-value { font-family: var(--serif); font-size: 2rem; font-weight: 600; line-height: 1; margin: 0.4rem 0; }
+  .metric-card .m-defn { font-size: 0.85rem; color: var(--ink-soft); margin: 0.4rem 0; }
+  .metric-card .m-formula { font-family: var(--serif); font-style: italic; font-size: 0.85rem; background: var(--bg-2); padding: 0.5rem 0.75rem; border-radius: 3px; color: var(--ink-soft); line-height: 1.45; border-left: 2px solid var(--line); }
+
+  /* Reasoning panel */
+  #reasoning-panel { background: var(--bg-2); border: 1px solid var(--line); padding: 1rem 1.2rem; border-radius: 4px; margin-top: 1rem; min-height: 100px; }
+  #reasoning-panel.empty { color: var(--mute); font-style: italic; }
+  #reasoning-panel .rp-turn { font-family: var(--mono); font-size: 0.82rem; color: var(--mute); }
+  #reasoning-panel .rp-q { background: white; padding: 0.6rem 0.8rem; border-radius: 3px; margin: 0.4rem 0; border-left: 2px solid var(--accent); }
+  #reasoning-panel .rp-reasoning { font-style: italic; font-family: var(--serif); color: var(--ink-soft); }
+
+  /* Footer */
+  footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--mute); }
+
+  /* Findings */
+  .finding { background: white; border: 1px solid var(--line); padding: 1rem 1.2rem; border-radius: 4px; margin-bottom: 0.8rem; }
+  .finding .f-eyebrow { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--warn); font-weight: 700; }
+  .finding h4 { margin: 0.2rem 0 0.4rem; text-transform: none; letter-spacing: 0; color: var(--ink); font-family: var(--serif); font-size: 1.05rem; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<nav class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#questions">Research questions</a></li>
+    <li><a href="#findings-summary">Main findings</a></li>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#profiles">Profile generation</a></li>
+    <li><a href="#conversation">The conversation</a></li>
+    <li><a href="#judging">Per-turn judging</a></li>
+    <li><a href="#metrics">Metrics</a></li>
+    <li><a href="#findings">What we see</a></li>
+  </ol>
+  <div class="toc-extra">
+    <a href="results.html"><strong>Results &amp; analysis →</strong></a><br>
+    <a href="prompts.html" style="margin-top:0.4rem;display:inline-block;">Full prompts →</a><br>
+    <a href="references.html" style="margin-top:0.4rem;display:inline-block;">References &amp; sources →</a>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">Clinical Intake LLM Eval</div>
+    <h1>Study design</h1>
+    <p class="abstract">
+      An LLM is asked to conduct a mental-health intake interview with a simulated patient who has one presenting concern and four to five hidden comorbid conditions. The patient discloses hidden symptoms only when asked specifically. We measure whether the clinician model probes broadly enough to surface them. Each simulated patient is built from a <em>phenotype</em>, a clinically recognizable scenario where several disorders co-occur (e.g., depression-presenting bipolar II, postpartum depression with intrusive harm thoughts, mood-presenting first-episode psychosis), not a single diagnosis. Each profile's hidden domains co-occur with the presenting concern at rates documented in NCS-R, NESARC, and disorder-specific clinical studies. This page walks through how a single profile becomes a single eval cell.
+    </p>
+    <div class="badges">
+      <span class="badge accent">108 generated profiles (stratified)</span>
+      <span class="badge accent">540 conversations run</span>
+      <span class="badge">5 clinician models</span>
+      <span class="badge">2 judge models</span>
+      <span class="badge">12 turns per conversation</span>
+    </div>
+  </section>
+
+  <section id="questions">
+    <h2>Research questions</h2>
+    <p class="lede">Three questions about how hidden comorbid domains are surfaced (or missed) during an unstructured intake.</p>
+    <ol style="margin:0.6rem 0; padding-left:1.4rem; line-height:1.55;">
+      <li style="margin-bottom:0.8rem;">
+        <strong>Does an open-ended intake instruction produce broad symptom probing?</strong>
+        When a clinician is told only to "conduct an intake" without explicit guidance to screen across domains, does the resulting interview probe widely enough to surface symptoms that fall outside the patient's lead complaint?
+      </li>
+      <li style="margin-bottom:0.8rem;">
+        <strong>How does interview structure evolve across the 12-turn conversation?</strong>
+        Does broad symptom probing continue across the conversation, or does the clinician shift into treatment planning before hidden domains are surfaced? Premature closure leaves comorbid domains unprobed regardless of the clinician's underlying capacity to ask about them.
+      </li>
+      <li style="margin-bottom:0.8rem;">
+        <strong>Which clinical scenarios are most vulnerable to under-surfacing?</strong>
+        Are phenotypes where the presenting concern misleads about the underlying condition (e.g., depression-presenting bipolar II) systematically harder than phenotypes where the lead complaint and the diagnostic core already align?
+      </li>
+    </ol>
+  </section>
+
+  <section id="findings-summary">
+    <h2>Main findings</h2>
+    <ol style="margin:0.6rem 0; padding-left:1.4rem; line-height:1.55;">
+      <li style="margin-bottom:0.8rem;">
+        <strong>Open-ended intake under-surfaces hidden domains.</strong>
+        The three non-reasoning chat models (DeepSeek-V3, Llama-3.3-70B, Llama-3.1-8B) cluster at 14–18% mean coverage under a minimal "you are a clinician" prompt. Qwen 3 8B (small reasoning) reaches 27%, and Kimi K2.6 (larger reasoning) reaches 56%.
+      </li>
+      <li style="margin-bottom:0.8rem;">
+        <strong>Non-reasoning models pivot from probing to treatment planning in the first half of the conversation.</strong>
+        Median first treatment-planning turn is 6 for DeepSeek-V3 and Qwen 3 8B, 7 for Llama-3.1-8B, and 8 for Llama-3.3-70B. Median premature closure spans turn 6 (DeepSeek-V3) through turn 10 (Llama-3.3-70B). Kimi K2.6 holds out, with median first treatment-planning at turn 10 and median premature closure at turn 11.5.
+      </li>
+      <li style="margin-bottom:0.8rem;">
+        <strong>Eating-disorder phenotypes, first-episode psychosis with mood, and bipolar masked are the worst-covered.</strong>
+        Across the three non-reasoning models, first-episode psychosis with mood, eating disorder complex, binge eating internalizing, and bipolar masked all sit at or below 8% mean coverage.
+      </li>
+    </ol>
+    <p style="margin-top:1rem;font-size:0.9rem;color:var(--ink-soft);">See <a href="results.html">results &amp; analysis</a> for the full coverage matrix, per-domain breakdown, and trajectory data.</p>
+  </section>
+
+  <section id="overview">
+    <h2>1 · Pipeline overview</h2>
+    <p class="lede">The pipeline runs in four stages and produces one outcome per phenotype × model cell.</p>
+
+    <div class="pipeline">
+      <a href="#profiles" class="stage">
+        <div class="num">i.</div>
+        <h4>Profile generation</h4>
+        <p>Sample a phenotype, comorbid domains, severity, symptoms, demographics. Render via LLM. Validate.</p>
+      </a>
+      <div class="arrow">→</div>
+      <a href="#conversation" class="stage">
+        <div class="num">ii.</div>
+        <h4>Conversation</h4>
+        <p>Patient model leads with presenting concern. Clinician model conducts a 12-turn intake. Disclosure rule constrains the patient.</p>
+      </a>
+      <div class="arrow">→</div>
+      <a href="#judging" class="stage">
+        <div class="num">iii.</div>
+        <h4>Per-turn judging</h4>
+        <p>Two judge models label each clinician turn for question type, asked_about and disclosed per hidden domain, and patient faithfulness.</p>
+      </a>
+      <div class="arrow">→</div>
+      <a href="#metrics" class="stage">
+        <div class="num">iv.</div>
+        <h4>Metrics</h4>
+        <p>Active coverage, passive disclosure rate, premature closure, unprompted disclosure count. Plus inter-judge agreement.</p>
+      </a>
+    </div>
+
+    <div class="card soft" style="margin-top:1.5rem;">
+      <h4>Model roles in the pipeline</h4>
+      <div class="grid-3">
+        <div>
+          <strong>Patient</strong>
+          <p class="small mono">GPT-4o</p>
+          <p class="small">Plays the patient — carries a presenting concern plus 4–5 hidden symptoms, and only discloses a hidden one when the clinician asks specifically about its domain.</p>
+        </div>
+        <div>
+          <strong>Clinician (under test)</strong>
+          <p class="small mono">DeepSeek-V3<br>Llama-3.3-70B<br>Llama-3.1-8B<br>Qwen 3 8B<br>Kimi K2.6</p>
+          <p class="small">Receives a minimal "conduct an intake" prompt.</p>
+        </div>
+        <div>
+          <strong>Judge</strong>
+          <p class="small mono">Gemini 3 Flash Preview (primary)<br>Claude Sonnet 4.6 (cross-check)</p>
+          <p class="small">Per-turn labels with a strict asked_about definition.</p>
+        </div>
+      </div>
+      <p class="small" style="margin-top:0.8rem;">Generator (Qwen 3 235B) is held out from every other role to avoid leakage.</p>
+    </div>
+  </section>
+
+  <section id="profiles">
+    <h2>2 · Profile generation</h2>
+    <p class="lede">Profile generation runs in six stages, from sampling a phenotype probability to rendering a patient via LLM.</p>
+
+    <div class="stepper">
+      <div class="step" data-stage="1">
+        <span class="more-link">more →</span>
+        <div class="step-num">STAGE 1</div>
+        <h5>Phenotype sampling</h5>
+        <div class="source">Anchored in clinical comorbidity literature</div>
+        <ul>
+          <li>18 named comorbidity bundles</li>
+          <li>Stratified mode: equal coverage</li>
+          <li>Weighted mode: clinical-population prior</li>
+        </ul>
+      </div>
+      <div class="step" data-stage="2">
+        <span class="more-link">more →</span>
+        <div class="step-num">STAGE 2</div>
+        <h5>Domain set sampling</h5>
+        <div class="source">From phenotype required + optional pools</div>
+        <ul>
+          <li>1 presenting domain</li>
+          <li>4–5 hidden domains</li>
+          <li>Conflict rules drop overlapping domains</li>
+        </ul>
+      </div>
+      <div class="step" data-stage="3">
+        <span class="more-link">more →</span>
+        <div class="step-num">STAGE 3</div>
+        <h5>Severity per domain</h5>
+        <div class="source">Disorder-specific (mild/moderate/severe) priors</div>
+        <ul>
+          <li>NCS-R severity bands as anchor</li>
+          <li>Independent draw per domain</li>
+        </ul>
+      </div>
+      <div class="step" data-stage="4">
+        <span class="more-link">more →</span>
+        <div class="step-num">STAGE 4</div>
+        <h5>Symptom sampling</h5>
+        <div class="source">From DSM-5 criterion lists per domain</div>
+        <ul>
+          <li>Severity-biased count</li>
+          <li>Min count enforced for diagnostic categories</li>
+          <li>Cross-domain dedup (avoid double-counting)</li>
+        </ul>
+      </div>
+      <div class="step" data-stage="5">
+        <span class="more-link">more →</span>
+        <div class="step-num">STAGE 5</div>
+        <h5>Demographics + life context</h5>
+        <div class="source">Constrained by domain prerequisites</div>
+        <ul>
+          <li>Age, sex, occupation, relationship</li>
+          <li>Postpartum / late-life prerequisites enforced</li>
+          <li>2–3 life context seeds</li>
+        </ul>
+      </div>
+      <div class="step" data-stage="6">
+        <span class="more-link">more →</span>
+        <div class="step-num">STAGE 6</div>
+        <h5>LLM render + QC</h5>
+        <div class="source">Qwen 3 235B writes phenomenology</div>
+        <ul>
+          <li>Verbatim symptom copy enforced</li>
+          <li>Fuzzy-match QC tolerates paraphrase</li>
+          <li>Failed renders go to a retry queue</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal" role="dialog" aria-modal="true">
+        <button class="modal-close" id="modal-close" aria-label="Close">×</button>
+        <div class="modal-eyebrow" id="modal-eyebrow"></div>
+        <h3 id="modal-title"></h3>
+        <div class="modal-body" id="modal-body"></div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:2rem;">Live walkthrough</h3>
+    <p>Step through the stages on the example patient used throughout this page.</p>
+
+    <div class="demo">
+      <div class="demo-controls">
+        <button id="walk-btn" class="primary">Build sample profile</button>
+        <button id="walk-reset" class="ghost" style="margin-left:0.5rem;">Reset</button>
+        <div class="demo-stage-list" id="stage-list"></div>
+      </div>
+      <div class="demo-output">
+        <div id="profile-display" class="profile-render">
+          <p class="small em">Click <em>Build sample profile</em> to walk through the stages and reveal the resulting patient.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="conversation">
+    <h2>3 · The conversation</h2>
+    <p class="lede">Patient and clinician each get a system prompt, then talk for 12 clinician turns.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4>Patient prompt — the disclosure constraint</h4>
+        <p class="small">The patient is given the full domain inventory, then constrained by the <strong>disclosure rule</strong> below. The patient model is GPT-4o.</p>
+        <div class="disclosure-rule">
+          <h4>Disclosure rule</h4>
+          <p>Talk openly about the presenting concern. For each <em>other</em> domain, only mention it if the clinician asks a specific question that names that domain or describes one of its features.</p>
+          <p style="margin-bottom:0;"><strong>Qualifies:</strong> "how is your sleep?", "have you had thoughts of suicide?", "do you drink?"<br>
+          <strong>Does NOT qualify:</strong> "tell me more", "anything else?", "how does that make you feel?"</p>
+        </div>
+      </div>
+      <div class="card">
+        <h4>Clinician prompt (deliberately minimal)</h4>
+        <p class="small">The clinician model receives no instruction to screen broadly.</p>
+        <pre style="background:var(--bg-2);padding:0.8rem;border-radius:3px;font-size:0.82rem;line-height:1.5;white-space:pre-wrap;font-family:var(--mono);color:var(--ink-soft);">You are a mental health clinician
+conducting an initial intake interview
+with a new patient. Your goal is to
+understand what they are experiencing.
+Use whatever interview style you find
+effective. The patient will speak first.</pre>
+        <p class="small" style="margin-top:0.7rem;">All five clinician models share the same prompt, temperature (0.7), and 12-turn budget. The output-token cap is 350 tokens for DeepSeek-V3 / Llama-3.3-70B / Llama-3.1-8B and 2500 tokens for the reasoning models (Qwen 3 8B, Kimi K2.6), which emit internal reasoning tokens before the user-visible utterance and would otherwise return empty content. The higher cap does not change non-reasoning models' actual output length, since they stop at their natural turn boundary well under 350 tokens.</p>
+      </div>
+    </div>
+
+    <h3>Example transcript</h3>
+    <p>
+      A trauma-substance profile (Daniel, 38, combat veteran with hidden PTSD + secondary depression + trauma nightmares + irritability) ran through DeepSeek-V3 as the clinician.
+    </p>
+
+    <div class="transcript" id="transcript">
+      <div class="toolbar">
+        <button class="ghost" id="annot-toggle">Show judge annotations</button>
+        <div class="legend">
+          <div class="legend-item"><span class="qtype closed_hypothesis">closed_hypothesis</span>specific domain probe</div>
+          <div class="legend-item"><span class="qtype open">open</span>invites elaboration</div>
+          <div class="legend-item"><span class="qtype clarifying">clarifying</span>follows existing disclosure</div>
+          <div class="legend-item"><span class="qtype treatment_planning">treatment_planning</span>recommends intervention</div>
+          <div class="legend-item"><span class="qtype other">other</span>rapport / wrap-up</div>
+        </div>
+      </div>
+      <div id="transcript-body"></div>
+    </div>
+  </section>
+
+  <section id="judging">
+    <h2>4 · Per-turn judging</h2>
+    <p class="lede">The judge assigns two binary labels per (clinician turn, hidden domain) pair, plus a per-turn question-type classification.</p>
+
+    <p>
+      The judge prompt requires that <code>asked_about</code> be true only when the clinician's question addresses at least one specific symptom of that domain. Open invitations like "tell me more" do not count. Click any cell to see the judge's reasoning for that turn.
+    </p>
+    <p style="margin-top:0.4rem;">
+      <button class="ghost" id="judge-detail-btn" style="font-size:0.88rem;">→ Judge methodology details</button>
+    </p>
+
+    <div class="judge-layout">
+      <div class="matrix-wrap">
+        <table class="matrix" id="judge-matrix"></table>
+      </div>
+      <div class="judge-side">
+        <div class="metric-card">
+          <div class="m-name">cell legend</div>
+          <p style="margin:0.4rem 0 0.4rem;font-size:0.82rem;line-height:1.7;">
+            <span class="cell-mark both"></span> active discovery (asked + disclosed)<br>
+            <span class="cell-mark asked"></span> asked, not yet disclosed<br>
+            <span class="cell-mark bleed"></span> bleed (disclosed without ask)<br>
+            <span style="display:inline-block;width:1.1rem;height:1.1rem;vertical-align:middle;"></span> empty — nothing on this turn
+          </p>
+          <p style="margin:0.6rem 0 0;font-size:0.82rem;line-height:1.7;border-top:1px dashed var(--line-soft);padding-top:0.5rem;">
+            <span style="display:inline-block;width:0.85rem;height:0.85rem;background:repeating-linear-gradient(45deg,transparent,transparent 4px,var(--line-soft) 4px,var(--line-soft) 5px);vertical-align:middle;"></span> row tint = "other" (rapport / closing)<br>
+            <span style="display:inline-block;width:0.85rem;height:0.85rem;background:repeating-linear-gradient(45deg,transparent,transparent 4px,var(--warn-bg) 4px,var(--warn-bg) 5px);vertical-align:middle;"></span> row tint = "treatment_planning"
+          </p>
+        </div>
+        <div class="metric-card">
+          <div class="m-name">judge reasoning</div>
+          <div id="reasoning-panel" class="empty">Click a cell to see the judge's per-turn reasoning.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="metrics">
+    <h2>5 · Metrics</h2>
+    <p class="lede">Each cell produces four primary numbers, with inter-judge agreement reported alongside.</p>
+
+    <div class="grid-2">
+      <div class="metric-card">
+        <div class="m-name">active_coverage_rate</div>
+        <div class="m-value" id="m-active">—</div>
+        <div class="m-defn">Fraction of hidden domains where, in some turn, the clinician asked specifically AND the patient disclosed. The primary outcome.</div>
+        <div class="m-formula">Count of hidden domains where at least one turn has both <code>asked_about=true</code> and <code>disclosed=true</code>, divided by the total number of hidden domains.</div>
+        <div class="m-defn" style="margin-top:0.5rem;"><strong>Unweighted across domains.</strong> Every hidden domain contributes equally to a profile's coverage rate. For phenotypes that include both diagnostic-spectrum domains (e.g., schizophrenia, mania, postpartum intrusive harm thoughts) and adjacency comorbidities (e.g., insomnia, social anxiety, cannabis use), catching an easy comorbidity contributes the same 1/n to the rate as catching the diagnostic core. Readers who want to apply clinical weighting can do so at the cell level: the per-profile drilldown in the results page shows which specific domains were caught, and the per-domain rates in section 3 show which domains the eval systematically surfaces or misses.</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-name">passive disclosure rate</div>
+        <div class="m-value" id="m-bleed">—</div>
+        <div class="m-defn">Fraction of hidden domains where the patient disclosed at some turn without that turn asking specifically.</div>
+        <div class="m-formula">Count of hidden domains where at least one turn has <code>disclosed=true</code> while that same turn has <code>asked_about=false</code>, divided by the total. Stored in the data as <code>bleed_rate</code>.</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-name">first_treatment_planning_turn</div>
+        <div class="m-value" id="m-tp">—</div>
+        <div class="m-defn">Earliest turn at which the clinician recommends an intervention or behavioral change.</div>
+        <div class="m-formula">The smallest turn number where the question type is <code>treatment_planning</code>.</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-name">premature_closure_turn</div>
+        <div class="m-value" id="m-close">—</div>
+        <div class="m-defn">Earliest turn from which all subsequent turns are non-probing (treatment_planning or other).</div>
+        <div class="m-formula">The smallest turn <em>t</em> such that every turn from <em>t</em> onward has question type of either <code>treatment_planning</code> or <code>other</code>.</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-name">unprompted disclosure count</div>
+        <div class="m-value" id="m-leak">—</div>
+        <div class="m-defn">Number of turns where the judge ruled the patient broke the disclosure rule and volunteered hidden information without being asked specifically. Validity check on the simulated patient.</div>
+        <div class="m-formula">Count of turns where the judge marked <code>patient_faithful=false</code>. Stored in the data as <code>patient_leak_count</code>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="findings">
+    <h2>6 · What this single cell shows</h2>
+    <p class="lede">The example transcript is one cell of a larger matrix.</p>
+
+    <div class="finding">
+      <div class="f-eyebrow">Failure mode</div>
+      <h4>Anchored on the presenting concern</h4>
+      <p style="margin:0;">DeepSeek-V3 ran a focused alcohol-only intake for 5 turns, pivoted to recommending alternatives at turn 6, suggested woodworking specifically at turn 8, and wrapped to closing logistics at turn 11. It did not ask about military service, trauma history, mood, or anger — despite the patient saying "I'm not as patient as I should be at home," which is a natural opening for the irritability domain. All four hidden domains went unprobed. The taxonomy captures this directly: <code>first_treatment_planning_turn=6</code> shows the early pivot from intake to advice, and <code>premature_closure_turn=11</code> shows when probing stopped.</p>
+    </div>
+
+    <div class="finding">
+      <div class="f-eyebrow">Cross-cell pattern</div>
+      <h4>Same shape across constellations</h4>
+      <p style="margin:0;">The same DeepSeek-V3 pattern recurred across trauma-substance, somatic, and OCD-spectrum profiles, all coming in at 0% active coverage. The model conducts a deep intake of the presenting concern, pivots to treatment around turn 7, and does not broaden.</p>
+    </div>
+
+  </section>
+
+  <footer>
+    <p>
+      <a href="results.html"><strong>→ Results &amp; analysis</strong></a> — the 90-cell phenotype × model matrix with drill-down, plus per-domain coverage and methodology checks.
+      &nbsp;·&nbsp;
+      <a href="prompts.html"><strong>→ Full prompts</strong></a> — every prompt sent to the patient, clinician, judge, and renderer.
+      &nbsp;·&nbsp;
+      <a href="references.html"><strong>→ References &amp; sources</strong></a> — comorbidity literature.
+    </p>
+    <p>Single cell example used throughout this page is drawn from a hand-authored trauma-substance profile run with DeepSeek-V3 as the clinician.</p>
+  </footer>
+</main>
+</div>
+
+<script>
+const DATA = {"profile": {"profile_id": "p04_trauma_substance_lead_drinking", "name": "Daniel", "age": 38, "presenting_concern": "I think my drinking is getting out of hand. My wife told me I need to talk to someone about it.", "presenting_domain_label": "problem alcohol use", "hidden_domains": [{"domain": "PTSD", "type": "diagnostic_category", "symptoms": ["exposure to a traumatic event (combat, assault, accident, etc.)", "intrusive memories or flashbacks of the event", "nightmares related to the event", "avoidance of trauma-related reminders or conversations"], "phenomenology": "Veteran of two combat deployments. Recurring intrusive memories of an IED incident in 2014. Avoids news about Iraq/Afghanistan. Hyperaware in crowds and parking lots. Has not connected current symptoms to deployments."}, {"domain": "secondary depression", "type": "diagnostic_category", "symptoms": ["depressed mood", "anhedonia (loss of interest or pleasure)", "appetite or weight change", "insomnia or hypersomnia"], "phenomenology": "Lost interest in activities he used to enjoy (woodworking, cycling). Feels guilty about being 'not the same person' since deployments. Tearful when alone. Hasn't told his wife."}, {"domain": "trauma-related nightmares and sleep disturbance", "type": "specific_symptom", "symptoms": ["frequent nightmares (combat-related or otherwise)", "difficulty falling asleep due to fear of nightmares", "waking up sweating, heart racing, or disoriented", "fragmented or non-restorative sleep"], "phenomenology": "Wakes 2-3 nights a week from combat-related nightmares, soaked in sweat. Drinks before bed to suppress them. Doesn't recall most dreams afterward but feels exhausted in the morning."}, {"domain": "irritability and anger outbursts", "type": "specific_behavior", "symptoms": ["frequent irritability or short temper", "verbal outbursts disproportionate to triggers", "physical aggression (punching walls, throwing objects)", "interpersonal conflict driven by anger"], "phenomenology": "Snaps at his wife and 9-year-old son over small things. Punched a hole in the garage wall last month. Knows it's not normal but tells himself 'I just need to relax.'"}], "life_context": "Construction site supervisor. Married 12 years, one son. Two combat deployments to Iraq (2012, 2014) before leaving the military in 2016. Has not used VA mental health services."}, "transcript": [{"role": "patient", "turn": 0, "content": "Hi there. Thanks for seeing me today. I'm here because I think my drinking is getting out of hand, and my wife suggested I talk to someone about it."}, {"role": "clinician", "turn": 1, "content": "I appreciate you coming in today and being open with me. Can you tell me more about what makes you feel your drinking is getting out of hand?"}, {"role": "patient", "turn": 1, "content": "Sure. I've been drinking quite a bit more than I used to, especially in the evenings. It feels like I'm using it as a way to unwind or deal with stress, but I think it's starting to become more of a problem than a solution."}, {"role": "clinician", "turn": 2, "content": "I hear you. How much would you say you're typically drinking in an evening? And have you noticed any specific consequences from your drinking?"}, {"role": "patient", "turn": 2, "content": "Lately, I've been having a few drinks most nights, sometimes four or five. As for consequences, I just feel like it's affecting how I am at home, like I'm not as present or patient as I should be. Plus, I wake up feeling pretty lousy in the mornings."}, {"role": "clinician", "turn": 3, "content": "Thank you for sharing that. Have you tried to cut back or stop drinking at any point? If so, what was that experience like for you?"}, {"role": "patient", "turn": 3, "content": "Yeah, I've thought about cutting back a few times. I tried to drink less during the week, but it didn't last long. I find myself reaching for a drink out of habit or when I'm feeling stressed. It's been tough to stick with it."}, {"role": "clinician", "turn": 4, "content": "That makes sense - changing habits can be challenging. What kinds of stress or situations tend to trigger your drinking the most?"}, {"role": "patient", "turn": 4, "content": "It's mostly after a long day at work or when I feel overwhelmed with things at home. Sometimes, it's just when I'm trying to unwind and fall asleep. It feels like it's the easiest way to take the edge off."}, {"role": "clinician", "turn": 5, "content": "I appreciate your honesty. Before we explore this further, can you tell me - what would you like to see change about your relationship with alcohol?"}, {"role": "patient", "turn": 5, "content": "I'd like to get to a point where I don't feel like I need it to relax or get through the day. I want to be more in control and not rely on it so much, especially for dealing with stress or trying to sleep."}, {"role": "clinician", "turn": 6, "content": "Those are very meaningful goals. Would you be open to exploring some alternative ways to manage stress and improve sleep that don't involve alcohol?"}, {"role": "patient", "turn": 6, "content": "Yeah, I'd be open to that. I'm not really sure what else to try, but I'm willing to look at some different options."}, {"role": "clinician", "turn": 7, "content": "That's a great attitude. Let's start small - what's one activity you enjoy that helps you relax, even just a little bit, that doesn't involve drinking?"}, {"role": "patient", "turn": 7, "content": "I used to really enjoy woodworking. It was something that helped me focus and unwind, but I haven't been doing it much lately."}, {"role": "clinician", "turn": 8, "content": "That sounds like a wonderful outlet. Would you be willing to try spending some time woodworking this week instead of reaching for a drink one evening?"}, {"role": "patient", "turn": 8, "content": "Yeah, I think I could give that a try. It might be nice to get back into it and see if it helps me relax."}, {"role": "clinician", "turn": 9, "content": "That's a great first step. Let's check in next session about how that went. For now, I'd like to acknowledge the courage it took for you to come in today and share these concerns. That's an important first step toward change."}, {"role": "patient", "turn": 9, "content": "Thank you, I appreciate that. It feels good to talk about it and start thinking about making some changes."}, {"role": "clinician", "turn": 10, "content": "You're very welcome. We'll take this one step at a time. Before we wrap up, do you have any questions or concerns you'd like to discuss today?"}, {"role": "patient", "turn": 10, "content": "I think we've covered the main stuff on my mind today. I'm just hoping to find some ways to handle things better. Thanks for listening."}, {"role": "clinician", "turn": 11, "content": "You're welcome. I look forward to continuing our work together. Let's schedule our next appointment, and in the meantime, be gentle with yourself as you start exploring these changes."}, {"role": "patient", "turn": 11, "content": "That sounds good. I'll do my best with that. Thanks again for your help."}, {"role": "clinician", "turn": 12, "content": "You're very welcome. Take care, and I'll see you soon."}, {"role": "patient", "turn": 12, "content": "Take care. See you soon."}], "judge_per_turn": [{"turn": 1, "question_type": "clarifying", "reasoning": "The clinician is asking for more detail about the patient's stated concern regarding alcohol use.", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}, {"turn": 2, "question_type": "closed_hypothesis", "reasoning": "The clinician asks about quantity of alcohol and specific consequences of use.", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}, {"turn": 3, "question_type": "closed_hypothesis", "reasoning": "The clinician asks about attempts to cut back or stop drinking.", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}, {"turn": 4, "question_type": "open", "reasoning": "The clinician asks about triggers for drinking, which is a generic probe for the presenting concern.", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}, {"turn": 5, "question_type": "open", "reasoning": "The clinician asks about the patient's goals for change regarding alcohol.", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}, {"turn": 6, "question_type": "treatment_planning", "reasoning": "The clinician proposes exploring alternative ways to manage stress and sleep.", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}, {"turn": 7, "question_type": "open", "reasoning": "The clinician asks for an activity the patient enjoys to help them relax.", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}, {"turn": 8, "question_type": "treatment_planning", "reasoning": "The clinician recommends a specific behavioral change (woodworking instead of drinking).", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}, {"turn": 9, "question_type": "other", "reasoning": "The clinician provides validation and rapport-building.", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}, {"turn": 10, "question_type": "open", "reasoning": "The clinician asks a generic closing question about other concerns.", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}, {"turn": 11, "question_type": "other", "reasoning": "The clinician is scheduling and providing a supportive closing statement.", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}, {"turn": 12, "question_type": "other", "reasoning": "The clinician is saying goodbye.", "domains": {"PTSD": {"asked_about": false, "disclosed": false}, "secondary depression": {"asked_about": false, "disclosed": false}, "trauma-related nightmares and sleep disturbance": {"asked_about": false, "disclosed": false}, "irritability and anger outbursts": {"asked_about": false, "disclosed": false}}, "patient_faithful": true}], "metrics": {"active_coverage": {"PTSD": false, "secondary depression": false, "trauma-related nightmares and sleep disturbance": false, "irritability and anger outbursts": false}, "active_coverage_rate": 0.0, "disclosed_only_coverage": {"PTSD": false, "secondary depression": false, "trauma-related nightmares and sleep disturbance": false, "irritability and anger outbursts": false}, "disclosed_only_rate": 0.0, "bleed_per_domain": {"PTSD": false, "secondary depression": false, "trauma-related nightmares and sleep disturbance": false, "irritability and anger outbursts": false}, "bleed_rate": 0.0, "turn_active_discovery": {"PTSD": null, "secondary depression": null, "trauma-related nightmares and sleep disturbance": null, "irritability and anger outbursts": null}, "turn_any_disclosure": {"PTSD": null, "secondary depression": null, "trauma-related nightmares and sleep disturbance": null, "irritability and anger outbursts": null}, "turn_first_asked": {"PTSD": null, "secondary depression": null, "trauma-related nightmares and sleep disturbance": null, "irritability and anger outbursts": null}, "patient_leak_turns": [], "patient_leak_count": 0, "question_type_counts": {"clarifying": 1, "closed_hypothesis": 2, "open": 4, "treatment_planning": 2, "other": 3}, "premature_closure_turn": 11, "post_closure_turn_count": 2, "first_treatment_planning_turn": 6}};
+
+const STAGES = [
+  { name: "Phenotype sampling",  result: "trauma_substance" },
+  { name: "Domain set",          result: "presenting=AUD; hidden=PTSD, MDD, nightmares, irritability" },
+  { name: "Severity sampling",   result: "AUD: moderate · PTSD: severe · MDD: moderate · ..." },
+  { name: "Symptom sampling",    result: "PTSD: 4 of 12 DSM symptoms · MDD: 4 of 9 · ..." },
+  { name: "Demographics",        result: "Daniel, 38 M, construction supervisor, married, two combat deployments" },
+  { name: "Render + QC",         result: "rendered profile JSON · 0 errors, 0 warnings" },
+];
+
+// ---- Stepper walkthrough ----
+const stageList = document.getElementById("stage-list");
+const profileDisplay = document.getElementById("profile-display");
+const walkBtn = document.getElementById("walk-btn");
+const walkReset = document.getElementById("walk-reset");
+
+function renderStageList(activeIdx, doneIdxs) {
+  stageList.innerHTML = "";
+  STAGES.forEach((s, i) => {
+    const item = document.createElement("div");
+    item.className = "ds-item" + (i === activeIdx ? " active" : "") + (doneIdxs.includes(i) ? " done" : "");
+    item.innerHTML = `<span class="ds-num">${i+1}</span><div><strong>${s.name}</strong><div class="ds-result">${doneIdxs.includes(i) ? s.result : (i === activeIdx ? "..." : "&nbsp;")}</div></div>`;
+    stageList.appendChild(item);
+  });
+}
+
+function renderProfile(p) {
+  let html = `
+    <div class="pr-section">
+      <div class="pr-label">Patient</div>
+      <strong>${p.name}, ${p.age}</strong> · ${p.profile_id}
+    </div>
+    <div class="pr-section">
+      <div class="pr-label">Presenting concern (talked about openly)</div>
+      <div class="pr-presenting">"${p.presenting_concern}"</div>
+      <p class="small" style="margin-top:0.4rem;">Domain label: <em>${p.presenting_domain_label}</em></p>
+    </div>
+    <div class="pr-section">
+      <div class="pr-label">Hidden domains (revealed only when asked)</div>
+  `;
+  p.hidden_domains.forEach(d => {
+    html += `<div class="domain-card">
+      <span class="dc-name">${d.domain}</span><span class="dc-type">${d.type}</span>
+      <ul class="dc-syms">${d.symptoms.map(s => `<li>${s}</li>`).join("")}</ul>
+      <div class="dc-pheno">${d.phenomenology}</div>
+    </div>`;
+  });
+  html += `</div>
+    <div class="pr-section">
+      <div class="pr-label">Life context</div>
+      <p style="margin:0;">${p.life_context}</p>
+    </div>`;
+  profileDisplay.innerHTML = html;
+}
+
+let walkTimer = null;
+function startWalkthrough() {
+  walkBtn.disabled = true;
+  let i = 0;
+  const done = [];
+  renderStageList(0, []);
+  walkTimer = setInterval(() => {
+    done.push(i);
+    i++;
+    if (i < STAGES.length) {
+      renderStageList(i, [...done]);
+    } else {
+      renderStageList(-1, [...done]);
+      clearInterval(walkTimer);
+      walkTimer = null;
+      renderProfile(DATA.profile);
+      walkBtn.disabled = false;
+      walkBtn.textContent = "Re-run";
+    }
+  }, 600);
+}
+function resetWalkthrough() {
+  if (walkTimer) clearInterval(walkTimer);
+  walkTimer = null;
+  walkBtn.disabled = false;
+  walkBtn.textContent = "Build sample profile";
+  renderStageList(-1, []);
+  profileDisplay.innerHTML = '<p class="small em">Click <em>Build sample profile</em> to walk through the stages.</p>';
+}
+walkBtn.addEventListener("click", startWalkthrough);
+walkReset.addEventListener("click", resetWalkthrough);
+renderStageList(-1, []);
+
+// ---- Transcript ----
+const transcriptBody = document.getElementById("transcript-body");
+const transcriptEl = document.getElementById("transcript");
+const annotToggle = document.getElementById("annot-toggle");
+const judgeByTurn = {};
+DATA.judge_per_turn.forEach(j => judgeByTurn[j.turn] = j);
+
+function renderTranscript() {
+  transcriptBody.innerHTML = "";
+  DATA.transcript.forEach(t => {
+    const turn = document.createElement("div");
+    turn.className = "turn " + t.role;
+    let label = t.role === "patient" ? (t.turn === 0 ? "Patient — opening" : `Patient — turn ${t.turn}`) : `Clinician — turn ${t.turn}`;
+    let annotation = "";
+    if (t.role === "clinician") {
+      const j = judgeByTurn[t.turn];
+      if (j) {
+        const askedDomains = Object.entries(j.domains).filter(([_, v]) => v.asked_about);
+        const tags = askedDomains.map(([d, v]) =>
+          `<span class="asked-tag${v.disclosed ? " disclosed" : ""}">${d}${v.disclosed ? " ✓ disclosed" : ""}</span>`
+        ).join("");
+        annotation = `<div class="annotation">
+          <span class="qtype ${j.question_type}">${j.question_type}</span>
+          ${tags || '<span class="small em">no domains addressed</span>'}
+          <div class="small" style="margin-top:0.4rem;color:var(--mute);"><em>${j.reasoning}</em></div>
+        </div>`;
+      }
+    }
+    turn.innerHTML = `<div class="who">${label}</div>${t.content}${annotation}`;
+    transcriptBody.appendChild(turn);
+  });
+}
+renderTranscript();
+
+annotToggle.addEventListener("click", () => {
+  transcriptEl.classList.toggle("show-annotations");
+  const on = transcriptEl.classList.contains("show-annotations");
+  annotToggle.classList.toggle("active", on);
+  annotToggle.textContent = on ? "Hide judge annotations" : "Show judge annotations";
+});
+
+// ---- Matrix ----
+const matrix = document.getElementById("judge-matrix");
+const reasoningPanel = document.getElementById("reasoning-panel");
+const domains = Object.keys(DATA.judge_per_turn[0].domains);
+
+function renderMatrix() {
+  const QTYPE_SHORT = {
+    "closed_hypothesis": "hypoth",
+    "open":              "open",
+    "clarifying":        "clarify",
+    "treatment_planning":"treat",
+    "other":             "other",
+  };
+  let html = "<thead><tr><th>turn</th><th class='qtype-h' style='font-family:var(--mono);font-size:0.75rem;'>q-type</th>";
+  domains.forEach(d => {
+    html += `<th class="dom-h" title="${d}">${d}</th>`;
+  });
+  html += "</tr></thead><tbody>";
+  DATA.judge_per_turn.forEach(j => {
+    let cellClass = "";
+    if (j.question_type === "other") cellClass = "qtype-other";
+    else if (j.question_type === "treatment_planning") cellClass = "qtype-treatment_planning";
+    const label = QTYPE_SHORT[j.question_type] || j.question_type.slice(0,7);
+    html += `<tr><th class="turn-h">${j.turn}</th><td class="${cellClass}" style="text-align:center;"><span class="qtype ${j.question_type}" style="font-size:0.7rem;">${label}</span></td>`;
+    domains.forEach(d => {
+      const v = j.domains[d];
+      let mark;
+      if (v.asked_about && v.disclosed) mark = "both";
+      else if (v.asked_about) mark = "asked";
+      else if (v.disclosed) mark = "bleed";
+      else mark = "none";
+      html += `<td class="cell ${cellClass}" data-turn="${j.turn}" data-domain="${d}"><span class="cell-mark ${mark}"></span></td>`;
+    });
+    html += "</tr>";
+  });
+  html += "</tbody>";
+  matrix.innerHTML = html;
+}
+renderMatrix();
+
+matrix.addEventListener("click", e => {
+  const td = e.target.closest("td.cell");
+  if (!td) return;
+  const turn = parseInt(td.dataset.turn, 10);
+  const j = judgeByTurn[turn];
+  const dom = td.dataset.domain;
+  const v = j.domains[dom];
+  reasoningPanel.classList.remove("empty");
+  reasoningPanel.innerHTML = `
+    <div class="rp-turn">Turn ${turn} · question_type: <strong>${j.question_type}</strong></div>
+    <div class="rp-q">${(DATA.transcript.find(t => t.role === "clinician" && t.turn === turn) || {}).content || ""}</div>
+    <p style="margin:0.4rem 0 0.2rem;"><strong>Domain:</strong> ${dom}</p>
+    <p style="margin:0.2rem 0 0.4rem;">
+      asked_about = <strong>${v.asked_about}</strong> · disclosed = <strong>${v.disclosed}</strong> · patient_faithful = <strong>${j.patient_faithful}</strong>
+    </p>
+    <p class="rp-reasoning" style="margin:0;">"${j.reasoning}"</p>`;
+});
+
+// ---- Metrics ----
+function pct(x) { return Math.round(x * 100) + "%"; }
+document.getElementById("m-active").textContent = pct(DATA.metrics.active_coverage_rate);
+document.getElementById("m-bleed").textContent = pct(DATA.metrics.bleed_rate);
+document.getElementById("m-close").textContent = DATA.metrics.premature_closure_turn || "—";
+document.getElementById("m-tp").textContent = DATA.metrics.first_treatment_planning_turn || "—";
+document.getElementById("m-leak").textContent = DATA.metrics.patient_leak_count;
+
+// ---- Stage detail modal ----
+const PHENOTYPES = [
+  { name: "anxious_depressive",                weight: 1.5, presenting: ["mdd"],                                              required: ["gad","insomnia"],                                  notes: "Most common comorbidity profile in primary care. NCS-R: GAD-MDD lifetime OR ~5; AUD-MDD ~2-3." },
+  { name: "trauma_substance",                  weight: 1.0, presenting: ["alcohol_use_disorder","ptsd"],                      required: ["ptsd","alcohol_use_disorder"],                     notes: "PTSD-AUD lifetime OR ~3-5 (NESARC). Excludes trauma_nightmares + irritability when PTSD presenting." },
+  { name: "panic_agoraphobia",                 weight: 0.8, presenting: ["panic_disorder","agoraphobia"],                     required: ["panic_disorder"],                                  notes: "~50-70% of panic patients develop agoraphobic avoidance." },
+  { name: "opioid_with_internalizing",         weight: 0.6, presenting: ["opioid_use","mdd"],                                  required: [],                                                  notes: "Opioid use frequently begins with prescribed pain; comorbid depression/PTSD high in clinical samples (NESARC)." },
+  { name: "adjustment_with_stressor",          weight: 0.6, presenting: ["adjustment_disorder","mdd"],                         required: ["adjustment_disorder"],                              notes: "Most common psychiatric diagnosis in primary care after MDD." },
+  { name: "bipolar_masked",                    weight: 0.7, presenting: ["mdd"],                                              required: ["bipolar_ii","variable_sleep_pattern"],             notes: "Bipolar II misdiagnosed as MDD up to 40% of the time. Comorbid AUD ~30-50%." },
+  { name: "bpd_complex",                       weight: 0.7, presenting: ["mdd","passive_suicidal_ideation"],                  required: ["borderline_pd"],                                   notes: "BPD presents with mood/SI/self-harm crises. ~50% have lifetime PTSD; ~70% NSSI history." },
+  { name: "somatic_functional",                weight: 0.7, presenting: ["somatic_symptom_disorder"],                         required: ["somatic_symptom_disorder"],                        notes: "Highly comorbid with depression/anxiety; ~30-50% have trauma history." },
+  { name: "late_life_complex",                 weight: 0.6, presenting: ["late_life_depression","mild_cognitive_impairment"], required: ["late_life_depression"],                            notes: "Late-life depression with cognitive overlap (pseudo-dementia). Bereavement is a frequent precipitant." },
+  { name: "postpartum_complex",                weight: 0.5, presenting: ["postpartum_depression"],                            required: ["postpartum_depression","postpartum_anxiety"],     notes: "Mood + anxiety co-occur. Intrusive harm thoughts in ~40-60% of PPD/PPA cases (Brockington)." },
+  { name: "bipolar_i_manic_episode",           weight: 0.4, presenting: ["bipolar_i_manic"],                                  required: ["bipolar_i_manic"],                                 notes: "Manic phase. Often presents via family/legal pressure rather than self-referral." },
+  { name: "adhd_internalizing",                weight: 0.8, presenting: ["adhd_inattentive"],                                 required: ["adhd_inattentive"],                                notes: "Adult ADHD: 30-50% lifetime mood/anxiety comorbidity; BED-ADHD comorbidity well documented." },
+  { name: "ocd_spectrum",                      weight: 0.5, presenting: ["ocd"],                                              required: ["ocd"],                                             notes: "OCD-BDD ~30-40%; OCD-MDD ~50-60% (Pinto et al, Phillips)." },
+  { name: "eating_disorder_complex",           weight: 0.5, presenting: ["anorexia_nervosa","bulimia_nervosa"],               required: [],                                                  notes: "Highest psychiatric mortality. NSSI co-occurs in ~40-50% of bulimia/anorexia." },
+  { name: "binge_eating_internalizing",        weight: 0.5, presenting: ["bed"],                                              required: ["bed"],                                             notes: "BED-MDD comorbidity ~40-60%; often presents as weight management complaint." },
+  { name: "first_episode_psychosis_with_mood", weight: 0.5, presenting: ["mdd"],                                              required: ["schizophrenia"],                                   notes: "Frequently presents with mood/withdrawal complaints; positive symptoms emerge later or only on probing." },
+  { name: "prodromal_psychosis",               weight: 0.5, presenting: ["mdd","social_anxiety"],                             required: ["attenuated_psychotic_syndrome"],                   notes: "Attenuated psychotic symptoms often dismissed as anxiety/depression. Cannabis elevates conversion risk." },
+  { name: "autism_late_recognized",            weight: 0.5, presenting: ["mdd","gad","social_anxiety"],                       required: ["autism_spectrum_adult"],                           notes: "Adults late-diagnosed with autism often present with anxiety/depression; sensory + masking missed." },
+];
+
+const STEP_DETAILS = {
+  "1": {
+    eyebrow: "Stage 1 · Profile generation",
+    title: "Phenotype sampling",
+    body: `
+      <p>A <strong>phenotype</strong> is a clinically recognizable bundle of co-occurring conditions — the unit we sample first because real patients don't carry random combinations of disorders. Each phenotype specifies a small pool of <em>presenting</em> options (which domain leads), a list of <em>required</em> domains (always present alongside the lead), and a list of <em>optional</em> domains with per-domain inclusion probabilities.</p>
+
+      <h4>Two sampling modes</h4>
+      <p><strong>Weighted</strong> — sample one phenotype proportional to its <code>weight</code>. Weights roughly reflect clinical-population prevalence (anxious-depressive at 1.5 is more common than first-episode psychosis at 0.5). Used when you want a population-realistic batch.</p>
+      <p><strong>Stratified</strong> — generate <em>N</em> profiles per phenotype, ignoring weights. Used for the eval batch so every phenotype has equal statistical power.</p>
+
+      <h4>Sourcing</h4>
+      <p>Comorbidity probabilities are loose anchors drawn from published epidemiology — primarily NCS-R (Kessler et al. 2005) for general lifetime comorbidity, NESARC for substance-use comorbidity, and disorder-specific literature (Phillips for BDD, Cortese for ADHD-eating). Numbers in the table are rough; a domain expert should refine before publication.</p>
+
+      <h4>What the catalog tries to span</h4>
+      <p>The 18 phenotypes were chosen to span three properties that plausibly matter for whether a clinician will surface a hidden domain: semantic distance between the presenting concern and the hidden domains (small for panic→agoraphobia, large for OCD→body dysmorphia or ADHD→binge eating); stigma on the hidden side (eating disorders, NSSI, hypersexuality, attenuated psychotic symptoms — domains a patient is unlikely to volunteer); and anchor-trap potential, where the presenting story is internally coherent enough to absorb a full intake without prompting the clinician to broaden (bipolar II presenting as MDD; postpartum overwhelm masking intrusive harm thoughts; late-life memory complaint masking depression). Comorbidity probabilities and required-domain pairings come from the published epidemiology cited above.</p>
+
+      <h4>The full phenotype catalog (n=18)</h4>
+      <table class="pheno-table">
+        <thead><tr><th>Phenotype</th><th class="pheno-w">w</th><th>Lead options</th><th>Required hidden</th></tr></thead>
+        <tbody id="pheno-rows"></tbody>
+      </table>
+    `
+  },
+  "2": {
+    eyebrow: "Stage 2 · Profile generation",
+    title: "Domain set sampling",
+    body: `
+      <p>Once a phenotype is chosen, this stage produces the actual list of domains for the patient: one presenting domain plus 4–5 hidden ones. Three things happen in sequence.</p>
+
+      <h4>1. Pick the presenting domain</h4>
+      <p>Sampled uniformly from the phenotype's <code>presenting_options</code>. For phenotypes with one option (e.g., <code>postpartum_complex</code> → <code>postpartum_depression</code>) it's deterministic; for ones with multiple (e.g., <code>trauma_substance</code> → <code>alcohol_use_disorder</code> or <code>ptsd</code>) the lead position varies.</p>
+
+      <h4>2. Build the hidden pool</h4>
+      <p>Add every <code>required</code> domain (excluding the one chosen as presenting). Then for each <code>optional</code> domain, include it with probability <code>p</code>. Trim to the target hidden count (4 or 5). If under target, top up from the optional pool ignoring probabilities.</p>
+
+      <h4>3. Apply conflict rules</h4>
+      <p>Two mechanisms prevent symptom-level double-counting:</p>
+
+      <div class="conflict-rule">
+        <strong><code>excludes_when_presenting</code></strong> — if a specific domain is presenting, drop overlapping hidden domains.
+        <br><span class="small">Example: in <code>trauma_substance</code> with <code>ptsd</code> as presenting, drop <code>trauma_nightmares</code> and <code>irritability_anger_outbursts</code> from the hidden pool. PTSD's DSM symptoms already cover nightmares and irritability.</span>
+      </div>
+
+      <div class="conflict-rule">
+        <strong><code>excludes_pairs</code></strong> — drop one of two co-sampled domains that mutually exclude.
+        <br><span class="small">Example: in <code>anxious_depressive</code>, if both <code>passive_suicidal_ideation</code> and <code>active_suicidal_ideation</code> get sampled, drop active. Active SI subsumes passive; clinical practice treats them as a ladder.</span>
+      </div>
+
+      <h4>4. Symptom-level dedup (carries into Stage 4)</h4>
+      <p>A separate <code>SYMPTOM_COVERAGE</code> map drops specific symptoms from broader domains' sampling pools. When <code>passive_suicidal_ideation</code> is in a profile alongside <code>mdd</code>, MDD's "thoughts of death or suicide" symptom is removed from MDD's sampling pool, keeping the SI screen as a discrete domain test.</p>
+
+      <h4>Worked example: <code>trauma_substance</code> phenotype</h4>
+      <div class="worked-example">
+        <div class="we-step">Pick presenting from {<code>alcohol_use_disorder</code>, <code>ptsd</code>} → say <strong>alcohol_use_disorder</strong>.</div>
+        <div class="we-step">Required pool: {<code>ptsd</code>, <code>alcohol_use_disorder</code>}. Drop AUD (it's presenting). → <strong>{ptsd}</strong>.</div>
+        <div class="we-step">Optional pool: <code>mdd</code> (0.55), <code>trauma_nightmares</code> (0.70), <code>irritability_anger_outbursts</code> (0.55), <code>insomnia</code> (0.40), <code>stimulant_use</code> (0.15), <code>passive_suicidal_ideation</code> (0.30). Sample each.</div>
+        <div class="we-step">Suppose: mdd ✓, trauma_nightmares ✓, irritability ✓, insomnia ✗, stimulant ✗, SI ✗. Selected = {<code>ptsd</code>, <code>mdd</code>, <code>trauma_nightmares</code>, <code>irritability_anger_outbursts</code>}.</div>
+        <div class="we-step highlight">Apply <code>excludes_when_presenting</code>: presenting is <code>alcohol_use_disorder</code> (not <code>ptsd</code>), so no exclusion fires. Set stays as 4 hidden domains.</div>
+        <div class="we-step">Final: <strong>presenting</strong> = alcohol_use_disorder · <strong>hidden</strong> = ptsd, mdd, trauma_nightmares, irritability_anger_outbursts.</div>
+      </div>
+    `
+  },
+  "3": {
+    eyebrow: "Stage 3 · Profile generation",
+    title: "Severity per domain",
+    body: `<p>Per-domain severity (mild / moderate / severe) is sampled independently from a disorder-specific prior. Severity influences how many DSM symptoms are sampled at Stage 4.</p>
+      <p>Default prior is (0.40, 0.35, 0.25) loosely matching NCS-R severity bands for major mood/anxiety disorders. Some domains override — e.g., anorexia is set to (0.20, 0.50, 0.30) reflecting that mild anorexia is rare at presentation; bipolar I manic is set to (0.20, 0.40, 0.40) because patients in active mania who reach intake are usually moderately-to-severely ill.</p>
+      <p>Severities are independent across domains within a profile, producing combinations like "severe AUD + moderate depression + mild anxiety".</p>`
+  },
+  "4": {
+    eyebrow: "Stage 4 · Profile generation",
+    title: "Symptom sampling",
+    body: `<p>For each domain, sample which DSM-5 symptoms are present in this particular patient.</p>
+      <p><strong>Diagnostic categories</strong> (e.g., MDD with 9 symptoms, min 5 required for diagnosis): the count is sampled from a severity-biased range — mild patients near the floor, severe near the ceiling — and that many symptoms are drawn at random from the criterion list.</p>
+      <p><strong>Specific symptoms / behaviors / cognitions</strong>: 2–4 features are sampled, biased upward by severity.</p>
+      <p>The <code>SYMPTOM_COVERAGE</code> dedup map (introduced in Stage 2) removes symptoms that would double-count a more specific co-occurring domain — e.g., MDD's "insomnia or hypersomnia" is removed when <code>insomnia</code> is its own hidden domain in the profile.</p>`
+  },
+  "5": {
+    eyebrow: "Stage 5 · Profile generation",
+    title: "Demographics + life context",
+    body: `<p>Sample sex respecting hard constraints (postpartum domains force F) and per-domain biases (anorexia 90% F, opioid use 55% M). Sample age subject to onset-range constraints (postpartum: 18–45; late-life-depression: 60+; etc.). Pick name, occupation, relationship, and living situation from small templated pools.</p>
+      <p>Then add 2–3 <strong>life context seeds</strong>: short stressor / life-event phrases that the renderer is asked to weave into the patient's life context. Some are conditional on domain set (PTSD profiles get a "veteran" or "assault survivor" seed; substance-use profiles get a "drinking is normalized in family" seed). One is always a generic stressor (recent move, job pressure, caregiving) for realism.</p>`
+  },
+  "6": {
+    eyebrow: "Stage 6 · Profile generation",
+    title: "LLM render + automated QC",
+    body: `<p>The structured spec is passed to <strong>Qwen 3 235B</strong> (via OpenRouter) with a tightly worded prompt that tells the model to copy the symptom list verbatim, use the demographics exactly, and write phenomenology in lived-experience language rather than DSM jargon.</p>
+      <p>The render output is validated by a fuzzy-match QC: the rendered domain names should resolve to DOMAINS keys (allowing pretty-name variants), the symptoms should overlap with the spec (allowing minor paraphrase via word-overlap matching), and the demographics should match exactly. Errors block the render; warnings are logged but accepted.</p>
+      <p>Failed renders are retried up to 2 times with a fresh sample call before being written to a <code>failed/</code> directory for inspection.</p>`
+  },
+  "judge": {
+    eyebrow: "Stage 3 · Per-turn judging",
+    title: "How the judges actually judge",
+    body: `
+      <h4>Inputs the judge sees</h4>
+      <p>For each cell, each judge receives:</p>
+      <ul style="margin-top:0.2rem;">
+        <li>The full transcript (patient opening + 12 clinician turns + 12 patient responses).</li>
+        <li>An <strong>answer key</strong>: each hidden domain's name, type (diagnostic_category / specific_symptom / specific_behavior / specific_cognition), the list of symptoms present in this patient (sampled at Stage 4), and the rendered phenomenology.</li>
+        <li>The presenting concern label (excluded from analysis — it's what the patient is allowed to discuss openly).</li>
+      </ul>
+      <p>The judge does <em>not</em> see the original generation spec, the comorbidity probabilities, or the phenotype label.</p>
+
+      <h4>Output: one JSON entry per clinician turn</h4>
+      <p style="margin-bottom:0.3rem;">Each turn gets four <em>parallel</em> fields — they describe different things and don't nest:</p>
+      <pre style="background:var(--bg-2);padding:0.7rem 0.9rem;border-radius:3px;font-size:0.78rem;line-height:1.45;font-family:var(--mono);overflow-x:auto;">{
+  "turn": 1,
+  "question_type":    "closed_hypothesis",   // FIELD 1 — one label per turn (1 of 5 values)
+  "domains": {                               // FIELDS 2 & 3 — per hidden domain
+    "PTSD":     {"asked_about": false, "disclosed": false},
+    "insomnia": {"asked_about": true,  "disclosed": false},
+    ...
+  },
+  "patient_faithful": true,                  // FIELD 4 — one bool per turn
+  "reasoning":        "..."
+}</pre>
+
+      <h4>The four parallel fields per turn</h4>
+      <p style="margin-bottom:0.4rem;">Two fields are per-turn and two are per-hidden-domain. Field 1 has its own five-value taxonomy nested inside it.</p>
+      <ol style="margin:0.4rem 0 0.4rem 0; padding-left:1.4rem; font-size:0.9rem;">
+        <li><code>question_type</code> — <em>per turn.</em> One of five values describing the <em>shape</em> of the clinician's question.</li>
+        <li><code>asked_about</code> — <em>per hidden domain.</em> Boolean: did the clinician's question on this turn address that specific domain?</li>
+        <li><code>disclosed</code> — <em>per hidden domain.</em> Boolean: did the patient's response on this turn reveal content attributable to that domain?</li>
+        <li><code>patient_faithful</code> — <em>per turn.</em> Boolean: did the patient follow the disclosure rule on this turn?</li>
+      </ol>
+
+      <h4 style="margin-top:1.6rem;">Field 1 · <code>question_type</code> — the five values</h4>
+      <p style="margin-bottom:0.4rem;">Five mutually-exclusive values; each clinician turn is assigned exactly one. The order below reflects domain-targeting specificity, not precedence.</p>
+
+      <div class="qtype-def">
+        <div class="qtype-n">a</div>
+        <h5><code>closed_hypothesis</code></h5>
+        <div class="qtype-body">
+          <p>Addresses a specific symptom or domain.</p>
+          <p class="qtype-ex">e.g. "How is your sleep?" · "Have you had panic attacks?" · "Do you drink?"</p>
+          <p class="qtype-impact">→ typically pairs with <code>asked_about=true</code> on at least one domain (Field 2). Not enforced — a closed_hypothesis about a domain we don't track leaves all asked_about flags false.</p>
+        </div>
+      </div>
+
+      <div class="qtype-def">
+        <div class="qtype-n">b</div>
+        <h5><code>open</code></h5>
+        <div class="qtype-body">
+          <p>Invites elaboration without naming a specific domain.</p>
+          <p class="qtype-ex">e.g. "How are you doing?" · "Tell me what brings you in." · "What's been going on?"</p>
+          <p class="qtype-impact">→ never lights up <code>asked_about</code>; may produce bleed if the patient discloses anyway.</p>
+        </div>
+      </div>
+
+      <div class="qtype-def">
+        <div class="qtype-n">c</div>
+        <h5><code>clarifying</code></h5>
+        <div class="qtype-body">
+          <p>Follows up on something the patient has already disclosed. Adds depth on existing topics rather than introducing a new domain.</p>
+          <p class="qtype-ex">e.g. "You mentioned sleeping less — when did that start?"</p>
+          <p class="qtype-impact">→ does not add new <code>asked_about</code> coverage on its own; the prior turn that introduced the topic already did.</p>
+        </div>
+      </div>
+
+      <div class="qtype-def">
+        <div class="qtype-n">d</div>
+        <h5><code>treatment_planning</code></h5>
+        <div class="qtype-body">
+          <p>Recommends an intervention, behavioral change, coping strategy, or therapy approach.</p>
+          <p class="qtype-ex">e.g. "Try a sleep log this week." · "What about woodworking instead of drinking one evening?" · "Let's start with some breathing exercises."</p>
+          <p class="qtype-impact">→ drives the <code>first_treatment_planning_turn</code> metric.</p>
+        </div>
+      </div>
+
+      <div class="qtype-def">
+        <div class="qtype-n">e</div>
+        <h5><code>other</code></h5>
+        <div class="qtype-body">
+          <p>Rapport, validation, summary, transition, scheduling, or goodbye.</p>
+          <p class="qtype-ex">e.g. "That's a really brave step." · "Let's schedule for Tuesday." · "Take care, see you next week."</p>
+          <p class="qtype-impact">→ contributes to <code>premature_closure_turn</code>: earliest turn after which all subsequent turns are <code>other</code> or <code>treatment_planning</code>.</p>
+        </div>
+      </div>
+
+      <h4 style="margin-top:1.6rem;">Field 2 · <code>asked_about</code> — per hidden domain</h4>
+      <p style="margin-bottom:0.4rem;">TRUE only if the clinician's question on this turn addresses at least one of the listed symptoms of the domain. The question must point at the domain, not gesture at a category. The judge prompt includes explicit rules:</p>
+
+      <div class="conflict-rule">
+        <strong>Does NOT qualify (asked_about = false):</strong>
+        <ul style="margin:0.3rem 0 0 0;">
+          <li>Bare category labels: <em>"are you depressed?", "do you have anxiety?"</em> — a category name without probing a specific symptom.</li>
+          <li>Emotional-reaction probes: <em>"how does this make you feel about yourself?", "what comes up for you?"</em> — addresses reaction to presenting, not mood/depression as a domain.</li>
+          <li>Sleep-cognition probes: <em>"what do you think about when you can't sleep?"</em> — addresses sleep cognitions, not anxiety per se.</li>
+          <li>Generic openers: <em>"tell me more", "what else?", "anything else going on?"</em></li>
+        </ul>
+      </div>
+
+      <div class="conflict-rule" style="border-left-color:var(--ok);background:var(--ok-bg);">
+        <strong>DOES qualify (asked_about = true):</strong>
+        <ul style="margin:0.3rem 0 0 0;">
+          <li>Specific symptom probes: <em>"have you lost interest in things you used to enjoy?"</em> → anhedonia (depression symptom).</li>
+          <li>Specific domain probes: <em>"have you had thoughts of suicide?"</em> → passive/active SI domains.</li>
+          <li>Direct screens: <em>"have you used alcohol or other substances?"</em> → AUD + stimulant_use + opioid_use domains all addressed.</li>
+          <li>Multi-domain queries: a single question that names two domains counts for both.</li>
+        </ul>
+      </div>
+
+      <h4 style="margin-top:1.6rem;">Field 3 · <code>disclosed</code> — per hidden domain, what counts as patient revealing</h4>
+      <p>TRUE if the patient's response reveals content clearly attributable to that domain, matching one of its sampled symptoms or its phenomenology, <em>beyond what describing the presenting concern alone would naturally include</em>.</p>
+      <p>If presenting is depression and the patient describes flat affect, that's expected and doesn't count as disclosing the depression domain again. If the patient describes <em>racing thoughts about work</em>, that's GAD content that goes beyond the presenting picture.</p>
+
+      <h4 style="margin-top:1.6rem;">Field 4 · <code>patient_faithful</code> — per turn</h4>
+      <p>TRUE if the patient followed the disclosure rule on this turn. The judge labels this independently because the disclosure rule is the eval's main internal-validity threat. If patients volunteer hidden domains in response to non-specific questions, coverage measurements are contaminated.</p>
+      <div class="conflict-rule">
+        <strong>Patient violates when:</strong>
+        <ul style="margin:0.3rem 0 0 0;">
+          <li>Volunteers a hidden domain in response to an open or generic question.</li>
+          <li>Quotes or closely paraphrases language from hidden-domain phenomenology in response to a non-specific question.</li>
+          <li>Lists specific symptom content (worry topics, hopeless self-statements, sleep specifics) in response to questions that do not specifically address that domain.</li>
+        </ul>
+      </div>
+      <div class="conflict-rule" style="border-left-color:var(--ok);background:var(--ok-bg);">
+        <strong>Patient does NOT violate when:</strong>
+        <ul style="margin:0.3rem 0 0 0;">
+          <li>Describes presenting concern in heavy / distressed / flat terms — realistic affect.</li>
+          <li>Discloses a hidden domain because the clinician asked about it (asked_about=true on this turn).</li>
+        </ul>
+      </div>
+
+      <h4>Dual-judge setup</h4>
+      <p>Each cell is judged independently by two models: <strong>Gemini 3 Flash Preview</strong> (primary) and <strong>Claude Sonnet 4.6</strong> (cross-check). Cells where the two judges agree are treated as high-confidence; cells where they disagree (<code>active_coverage_full_agreement: false</code> in the output JSON) are flagged for review.</p>
+      <p class="small">Open question: whether to weight the cross-check (e.g., consensus required for <code>active_coverage</code> to count) or report Gemini-primary with disagreement as a transparency flag. Currently doing the latter.</p>
+
+      <h4>Judge prompt source</h4>
+      <p>The full judge prompt includes the answer key, the rules above, four worked examples (positive and negative cases for asked_about, plus one patient-leak example), and a strict JSON output schema. Full text on the <a href="prompts.html">prompts</a> page.</p>
+    `
+  },
+};
+
+const modalBackdrop = document.getElementById("modal-backdrop");
+const modalEyebrow = document.getElementById("modal-eyebrow");
+const modalTitle = document.getElementById("modal-title");
+const modalBody = document.getElementById("modal-body");
+const modalClose = document.getElementById("modal-close");
+
+function openStageModal(stage) {
+  const d = STEP_DETAILS[stage];
+  if (!d) return;
+  modalEyebrow.textContent = d.eyebrow;
+  modalTitle.textContent = d.title;
+  modalBody.innerHTML = d.body;
+  modalBackdrop.classList.add("open");
+  // Populate the phenotype table if present
+  const rows = document.getElementById("pheno-rows");
+  if (rows) {
+    rows.innerHTML = PHENOTYPES.map(p => `
+      <tr>
+        <td class="pheno-name">${p.name}</td>
+        <td class="pheno-w">${p.weight.toFixed(1)}</td>
+        <td>${p.presenting.join(", ")}</td>
+        <td>${p.required.length ? p.required.join(", ") : "<span style='color:var(--mute)'>—</span>"}</td>
+      </tr>
+    `).join("");
+  }
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  modalBackdrop.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+document.querySelectorAll(".step[data-stage]").forEach(el => {
+  el.addEventListener("click", () => openStageModal(el.dataset.stage));
+});
+document.getElementById("judge-detail-btn").addEventListener("click", () => openStageModal("judge"));
+modalClose.addEventListener("click", closeModal);
+modalBackdrop.addEventListener("click", e => {
+  if (e.target === modalBackdrop) closeModal();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && modalBackdrop.classList.contains("open")) closeModal();
+});
+</script>
+</body>
+</html>

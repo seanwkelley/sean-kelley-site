@@ -30,7 +30,7 @@ export default function Home() {
             <a href="#about">about</a>
             <a href="#research">research</a>
             <a href="#building">building</a>
-            <a href="#writing">publications</a>
+            <a href="/lab">lab</a>
             <a href="#contact">contact</a>
           </div>
         </div>
@@ -217,6 +217,24 @@ export default function Home() {
               );
             })}
           </div>
+        </section>
+
+        {/* ── Lab teaser ────────────────────────────────────────────────────── */}
+        <section id="lab-teaser">
+          <Reveal className="lab-teaser">
+            <div>
+              <span className="eyebrow">
+                <span className="bar" /> lab
+              </span>
+              <p className="lab-teaser-line">
+                Mini-experiments — like measuring what an LLM intake agent can
+                surface that a patient never volunteers.
+              </p>
+            </div>
+            <a className="btn primary" href="/lab">
+              Visit the lab <ArrowUpRight />
+            </a>
+          </Reveal>
         </section>
 
         {/* ── Background ────────────────────────────────────────────────────── */}

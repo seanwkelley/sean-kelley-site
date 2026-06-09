@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>References — Clinical Intake LLM Eval</title>
+<style>
+  :root {
+    --bg: #f7f5ef;
+    --bg-2: #efece2;
+    --ink: #1c2126;
+    --ink-soft: #393f46;
+    --mute: #6b7180;
+    --line: #d8d2c2;
+    --line-soft: #ebe6d8;
+    --accent: #1f5f5b;
+    --accent-bg: #d9ebe7;
+    --warn: #b95a26;
+    --warn-bg: #f4d8c4;
+    --serif: 'Charter','Iowan Old Style','Bitstream Charter','Sitka Text',Cambria,'Times New Roman',serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace,'SF Mono','Cascadia Code','Source Code Pro',Menlo,Consolas,monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--accent); }
+  code { font-family: var(--mono); font-size: 0.9em; background: var(--bg-2); padding: 0.05rem 0.3rem; border-radius: 2px; }
+  h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
+  h1 { font-size: 2.4rem; margin: 0 0 0.4rem; }
+  h2 { font-size: 1.5rem; margin: 0 0 1rem; }
+  h3 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+  h4 { font-size: 0.85rem; margin: 1rem 0 0.4rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--mute); font-weight: 700; font-family: var(--sans); }
+  p { margin: 0 0 0.9rem; }
+
+  .page { max-width: 920px; margin: 0 auto; padding: 2.5rem 2rem 6rem; }
+  .breadcrumb { font-size: 0.85rem; color: var(--mute); margin-bottom: 0.6rem; }
+  .breadcrumb a { color: var(--mute); border-bottom: 1px dotted var(--line); }
+  .breadcrumb a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .lede { font-family: var(--serif); font-size: 1.1rem; font-style: italic; color: var(--ink-soft); max-width: 60ch; margin: 1.2rem 0 2.4rem; }
+
+  section { margin-bottom: 3rem; }
+  section h2 { padding-bottom: 0.4rem; border-bottom: 1px solid var(--line); margin-bottom: 1.4rem; }
+  section .section-intro { font-size: 0.95rem; color: var(--ink-soft); max-width: 60ch; margin-bottom: 1.4rem; }
+
+  .ref { background: white; border: 1px solid var(--line); padding: 1rem 1.3rem; border-radius: 4px; margin-bottom: 0.9rem; font-size: 0.92rem; }
+  .ref .citation { font-family: var(--serif); line-height: 1.5; margin-bottom: 0.6rem; color: var(--ink); }
+  .ref .citation .title { font-style: italic; }
+  .ref .citation .authors { font-weight: 500; }
+  .ref .meta { font-size: 0.8rem; color: var(--mute); margin-bottom: 0.5rem; font-family: var(--mono); }
+  .ref .used-for { font-size: 0.88rem; color: var(--ink-soft); margin: 0.3rem 0 0.2rem; }
+  .ref .used-for strong { color: var(--accent); font-weight: 600; }
+  .ref .doi { font-family: var(--mono); font-size: 0.78rem; color: var(--mute); }
+  .ref .doi a { color: var(--accent); border-bottom: 1px dotted var(--line); }
+  .ref .doi a:hover { border-bottom-color: var(--accent); }
+
+  .key-tag { display: inline-block; font-family: var(--mono); font-size: 0.72rem; padding: 0.05rem 0.45rem; border-radius: 3px; background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent); margin-right: 0.4rem; }
+
+  footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--mute); }
+
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="breadcrumb">
+  <a href="study_design.html">← Study design</a>
+  &nbsp;·&nbsp;
+  <a href="results.html">Results</a>
+  &nbsp;·&nbsp;
+  <a href="prompts.html">Prompts</a>
+</div>
+
+<h1>References</h1>
+<p class="lede">
+  Sources used to anchor the comorbidity probabilities, severity bands, demographic priors, and methodology behind the eval pipeline.
+</p>
+
+<section>
+  <h2>1 · Foundational classification</h2>
+  <p class="section-intro">The DSM-5 is the source of truth for symptom lists, diagnostic categories, severity descriptors, and onset-age conventions throughout the pipeline.</p>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">DSM-5</span> manual</div>
+    <div class="citation">
+      <span class="authors">American Psychiatric Association.</span>
+      (2013).
+      <span class="title">Diagnostic and Statistical Manual of Mental Disorders</span>
+      (5th ed.). American Psychiatric Publishing.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1176/appi.books.9780890425596" target="_blank" rel="noopener">doi.org/10.1176/appi.books.9780890425596 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> all diagnostic-category symptom lists, criterion thresholds (e.g., MDD requires ≥5 of 9 symptoms), prerequisites such as postpartum onset and late-life cognitive impairment, severity descriptors (mild/moderate/severe), and onset-age ranges. Specific behaviors and cognitions (NSSI, passive SI, intrusive thoughts) follow DSM-5 conditions-for-further-study definitions where applicable.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">DSM-5-TR</span> revision</div>
+    <div class="citation">
+      <span class="authors">American Psychiatric Association.</span>
+      (2022).
+      <span class="title">Diagnostic and Statistical Manual of Mental Disorders, Text Revision</span>
+      (5th ed., text rev.). American Psychiatric Publishing.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1176/appi.books.9780890425787" target="_blank" rel="noopener">doi.org/10.1176/appi.books.9780890425787 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> minor refinements to PTSD criteria (Criterion E hypervigilance/anger language) and prolonged grief disorder framing where it bears on late-life depression presentation.</div>
+  </div>
+</section>
+
+<section>
+  <h2>2 · Lifetime prevalence and comorbidity (general epidemiology)</h2>
+  <p class="section-intro">Phenotype <code>weight</code> values and the comorbidity probabilities in <code>phenotypes.py</code> are loosely anchored in the National Comorbidity Survey Replication (NCS-R) and related survey work.</p>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">NCS-R</span> lifetime prevalence</div>
+    <div class="citation">
+      <span class="authors">Kessler, R. C., Berglund, P., Demler, O., Jin, R., Merikangas, K. R., &amp; Walters, E. E.</span>
+      (2005).
+      <span class="title">Lifetime prevalence and age-of-onset distributions of DSM-IV disorders in the National Comorbidity Survey Replication.</span>
+      <em>Archives of General Psychiatry</em>, 62(6), 593–602.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1001/archpsyc.62.6.593" target="_blank" rel="noopener">doi.org/10.1001/archpsyc.62.6.593 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> base-rate <code>lifetime_prevalence</code> values per disorder in <code>disorders.py</code>; rough phenotype weight ordering reflecting clinical-population frequency; severity-band priors.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">NCS-R</span> 12-month prevalence and severity</div>
+    <div class="citation">
+      <span class="authors">Kessler, R. C., Chiu, W. T., Demler, O., &amp; Walters, E. E.</span>
+      (2005).
+      <span class="title">Prevalence, severity, and comorbidity of 12-month DSM-IV disorders in the National Comorbidity Survey Replication.</span>
+      <em>Archives of General Psychiatry</em>, 62(6), 617–627.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1001/archpsyc.62.6.617" target="_blank" rel="noopener">doi.org/10.1001/archpsyc.62.6.617 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> the (mild, moderate, severe) severity-band distributions used as defaults in <code>disorders.py</code>. NCS-R reports approximately 40% mild / 37% moderate / 22% severe across major disorders, which is the basis for the (0.40, 0.35, 0.25) default tuple.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">NESARC</span> substance + psychiatric</div>
+    <div class="citation">
+      <span class="authors">Grant, B. F., Saha, T. D., Ruan, W. J., Goldstein, R. B., Chou, S. P., Jung, J., et al.</span>
+      (2016).
+      <span class="title">Epidemiology of DSM-5 drug use disorder: results from the National Epidemiologic Survey on Alcohol and Related Conditions–III.</span>
+      <em>JAMA Psychiatry</em>, 73(1), 39–47.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1001/jamapsychiatry.2015.2132" target="_blank" rel="noopener">doi.org/10.1001/jamapsychiatry.2015.2132 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> opioid, cannabis, and stimulant use prevalence and comorbidity rates with mood/anxiety/PTSD; weight calibration on the <code>opioid_with_internalizing</code> and <code>trauma_substance</code> phenotypes.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">NESARC</span> PTSD-AUD</div>
+    <div class="citation">
+      <span class="authors">Pietrzak, R. H., Goldstein, R. B., Southwick, S. M., &amp; Grant, B. F.</span>
+      (2011).
+      <span class="title">Prevalence and Axis I comorbidity of full and partial posttraumatic stress disorder in the United States: results from Wave 2 of the NESARC.</span>
+      <em>Journal of Anxiety Disorders</em>, 25(3), 456–465.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1016/j.janxdis.2010.11.010" target="_blank" rel="noopener">doi.org/10.1016/j.janxdis.2010.11.010 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> PTSD-AUD lifetime comorbidity OR (~3-5×) cited in the <code>trauma_substance</code> phenotype notes.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">WHO</span> world mental health</div>
+    <div class="citation">
+      <span class="authors">Kessler, R. C., &amp; Üstün, T. B. (Eds.).</span>
+      (2008).
+      <span class="title">The WHO World Mental Health Surveys: Global Perspectives on the Epidemiology of Mental Disorders.</span>
+      Cambridge University Press.
+    </div>
+    <div class="doi"><a href="https://scholar.google.com/scholar?q=WHO+World+Mental+Health+Surveys+Global+Perspectives+Kessler+Ustun+2008" target="_blank" rel="noopener">Google Scholar →</a></div>
+    <div class="used-for"><strong>Used for:</strong> cross-country sanity check on the comorbidity ratios used; primarily as a consistency reference rather than a direct numeric source.</div>
+  </div>
+</section>
+
+<section>
+  <h2>3 · Disorder-specific comorbidity</h2>
+  <p class="section-intro">Where phenotype <code>optional</code> probabilities reflect specific clinical literature rather than general epidemiology.</p>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">OCD-BDD</span> Pinto et al.</div>
+    <div class="citation">
+      <span class="authors">Pinto, A., Mancebo, M. C., Eisen, J. L., Pagano, M. E., &amp; Rasmussen, S. A.</span>
+      (2006).
+      <span class="title">The Brown Longitudinal Obsessive Compulsive Study: clinical features and symptoms of the sample at intake.</span>
+      <em>Journal of Clinical Psychiatry</em>, 67(5), 703–711.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.4088/jcp.v67n0503" target="_blank" rel="noopener">doi.org/10.4088/jcp.v67n0503 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> OCD-BDD comorbidity rate (~30-40%) and OCD-MDD comorbidity rate (~50-60%) used in the <code>ocd_spectrum</code> phenotype optional probabilities.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">BDD</span> Phillips longitudinal</div>
+    <div class="citation">
+      <span class="authors">Phillips, K. A., &amp; Stout, R. L.</span>
+      (2006).
+      <span class="title">Associations in the longitudinal course of body dysmorphic disorder with major depression, obsessive-compulsive disorder, and social phobia.</span>
+      <em>Journal of Psychiatric Research</em>, 40(4), 360–369.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1016/j.jpsychires.2005.10.001" target="_blank" rel="noopener">doi.org/10.1016/j.jpsychires.2005.10.001 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> BDD-social anxiety co-occurrence and BDD-MDD comorbidity calibration.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">ADHD</span> meta-analytic comorbidity</div>
+    <div class="citation">
+      <span class="authors">Cortese, S., Moreira-Maia, C. R., St. Fleur, D., Morcillo-Peñalver, C., Rohde, L. A., &amp; Faraone, S. V.</span>
+      (2016).
+      <span class="title">Association between ADHD and obesity: a systematic review and meta-analysis.</span>
+      <em>American Journal of Psychiatry</em>, 173(1), 34–43.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1176/appi.ajp.2015.15020266" target="_blank" rel="noopener">doi.org/10.1176/appi.ajp.2015.15020266 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> ADHD-binge-eating comorbidity rate (~30%) used in the <code>adhd_internalizing</code> phenotype; ADHD-mood/anxiety comorbidity context.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">Postpartum</span> intrusive thoughts</div>
+    <div class="citation">
+      <span class="authors">Fairbrother, N., &amp; Woody, S. R.</span>
+      (2008).
+      <span class="title">New mothers' thoughts of harm related to the newborn.</span>
+      <em>Archives of Women's Mental Health</em>, 11(3), 221–229.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1007/s00737-008-0016-7" target="_blank" rel="noopener">doi.org/10.1007/s00737-008-0016-7 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> base-rate of intrusive harm thoughts in postpartum women (~50%), informing the <code>postpartum_intrusive_thoughts</code> 0.55 inclusion probability in the <code>postpartum_complex</code> phenotype.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">BPD</span> NESARC-III</div>
+    <div class="citation">
+      <span class="authors">Tomko, R. L., Trull, T. J., Wood, P. K., &amp; Sher, K. J.</span>
+      (2014).
+      <span class="title">Characteristics of borderline personality disorder in a community sample: comorbidity, treatment utilization, and general functioning.</span>
+      <em>Journal of Personality Disorders</em>, 28(5), 734–750.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1521/pedi_2012_26_093" target="_blank" rel="noopener">doi.org/10.1521/pedi_2012_26_093 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> BPD prevalence (~1.6% lifetime) and comorbidity rates with PTSD, NSSI, and AUD informing the <code>bpd_complex</code> phenotype optional probabilities.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">Bipolar II</span> diagnostic delay</div>
+    <div class="citation">
+      <span class="authors">Hirschfeld, R. M. A., Lewis, L., &amp; Vornik, L. A.</span>
+      (2003).
+      <span class="title">Perceptions and impact of bipolar disorder: how far have we really come? Results of the National Depressive and Manic-Depressive Association 2000 survey of individuals with bipolar disorder.</span>
+      <em>Journal of Clinical Psychiatry</em>, 64(2), 161–174.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.4088/jcp.v64n0209" target="_blank" rel="noopener">doi.org/10.4088/jcp.v64n0209 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> the "up to 40% of bipolar II misdiagnosed as MDD" figure in the <code>bipolar_masked</code> phenotype notes.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">First-episode psychosis</span> prodrome</div>
+    <div class="citation">
+      <span class="authors">Yung, A. R., Yuen, H. P., McGorry, P. D., Phillips, L. J., Kelly, D., Dell'Olio, M., et al.</span>
+      (2005).
+      <span class="title">Mapping the onset of psychosis: the Comprehensive Assessment of At-Risk Mental States.</span>
+      <em>Australian and New Zealand Journal of Psychiatry</em>, 39(11–12), 964–971.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1080/j.1440-1614.2005.01714.x" target="_blank" rel="noopener">doi.org/10.1080/j.1440-1614.2005.01714.x →</a></div>
+    <div class="used-for"><strong>Used for:</strong> the attenuated psychotic symptom criteria backing <code>attenuated_psychotic_syndrome</code> domain (DSM-5 Section III condition for further study); prodromal-to-conversion rates.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">Late-life</span> depression-MCI</div>
+    <div class="citation">
+      <span class="authors">Steffens, D. C., McQuoid, D. R., &amp; Potter, G. G.</span>
+      (2014).
+      <span class="title">Outcomes of older cognitively impaired individuals with current and past depression in the NCODE study.</span>
+      <em>Journal of Geriatric Psychiatry and Neurology</em>, 27(1), 4–11.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1177/0891988713516541" target="_blank" rel="noopener">doi.org/10.1177/0891988713516541 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> MCI-depression overlap (~50%) informing the <code>late_life_complex</code> phenotype.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">Eating disorders</span> NSSI</div>
+    <div class="citation">
+      <span class="authors">Cucchi, A., Ryan, D., Konstantakopoulos, G., Stroumpa, S., Kaçar, A. Ş., Renshaw, S., et al.</span>
+      (2016).
+      <span class="title">Lifetime prevalence of non-suicidal self-injury in patients with eating disorders: a systematic review and meta-analysis.</span>
+      <em>Psychological Medicine</em>, 46(7), 1345–1358.
+    </div>
+    <div class="doi"><a href="https://doi.org/10.1017/S0033291716000027" target="_blank" rel="noopener">doi.org/10.1017/S0033291716000027 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> NSSI rate in anorexia/bulimia (~40-50%) informing the <code>eating_disorder_complex</code> phenotype optional probability.</div>
+  </div>
+</section>
+
+<section>
+  <h2>4 · Methodology</h2>
+  <p class="section-intro">References for the eval and synthetic-patient methodology.</p>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">LLM-judge</span> Zheng et al.</div>
+    <div class="citation">
+      <span class="authors">Zheng, L., Chiang, W.-L., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., et al.</span>
+      (2023).
+      <span class="title">Judging LLM-as-a-judge with MT-Bench and Chatbot Arena.</span>
+      <em>Advances in Neural Information Processing Systems</em>, 36.
+    </div>
+    <div class="doi"><a href="https://arxiv.org/abs/2306.05685" target="_blank" rel="noopener">arXiv:2306.05685 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> general framing for using a stronger LLM as judge over a weaker LLM's outputs; calibration concerns; the inter-judge agreement methodology.</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">Synthetic patients</span> review</div>
+    <div class="citation">
+      <span class="authors">Tu, T., Palepu, A., Schaekermann, M., Saab, K., Freyberg, J., Tanno, R., et al.</span>
+      (2024).
+      <span class="title">Towards conversational diagnostic AI.</span>
+      <em>arXiv preprint</em>.
+    </div>
+    <div class="doi"><a href="https://arxiv.org/abs/2401.05654" target="_blank" rel="noopener">arXiv:2401.05654 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> design pattern of using LLMs as both simulated patient and clinician; the constraint-rendering pattern (structured spec → LLM → conversation).</div>
+  </div>
+
+  <div class="ref">
+    <div class="meta"><span class="key-tag">Clinical interview</span> standardized intake</div>
+    <div class="citation">
+      <span class="authors">Sheehan, D. V., Lecrubier, Y., Sheehan, K. H., Amorim, P., Janavs, J., Weiller, E., et al.</span>
+      (1998).
+      <span class="title">The Mini-International Neuropsychiatric Interview (M.I.N.I.): the development and validation of a structured diagnostic psychiatric interview for DSM-IV and ICD-10.</span>
+      <em>Journal of Clinical Psychiatry</em>, 59 (Suppl 20), 22–33.
+    </div>
+    <div class="doi"><a href="https://pubmed.ncbi.nlm.nih.gov/9881538/" target="_blank" rel="noopener">PubMed: 9881538 →</a></div>
+    <div class="used-for"><strong>Used for:</strong> reference for what a "broad" psychiatric intake covers — used as an anchor for the structured-prompt ceiling condition (not yet run) where the clinician model is told to do a thorough psychiatric review of systems.</div>
+  </div>
+</section>
+
+<footer>
+  <p>Sources represent the comorbidity literature this eval is anchored in.</p>
+</footer>
+
+</div>
+</body>
+</html>
