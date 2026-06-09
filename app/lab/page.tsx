@@ -69,7 +69,7 @@ export default function Lab() {
                   <p>{x.finding}</p>
                 </div>
                 <div className="qa">
-                  <h4>The honest caveat</h4>
+                  <h4>Limitations</h4>
                   <p className="muted">{x.caveat}</p>
                 </div>
                 <div className="exp-links">

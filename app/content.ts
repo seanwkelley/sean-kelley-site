@@ -222,7 +222,7 @@ export const experiments = [
     // The finding.
     finding:
       "Reasoning is the variable that matters — not model size, and not the prompt. Standard chat models surfaced only 14–18% of hidden symptoms; a small reasoning model reached 27%, and a large one (Kimi K2.6) reached 56% — roughly 3× the next best — spontaneously asking symptom-specific questions across nearly all domains without being told to. The gains concentrated exactly where it counts clinically: masked presentations like bipolar, postpartum, and somatic cases, where chat models scored near zero.",
-    // Honest caveat — keeps it research-credible.
+    // Limitations.
     caveat:
       "Patients are simulated, so the absolute percentages aren't real-world forecasts; the supported claim is relative — reasoning models produce probing behavior the chat models simply don't.",
     stats: [
